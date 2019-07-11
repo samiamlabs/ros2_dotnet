@@ -42,19 +42,23 @@ set(_generated_srv_c_files "")
 set(_generated_action_py_files "")
 set(_generated_action_c_files "")
 
-# set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
 
 foreach(_typesupport_impl ${_typesupport_impls})
   set(_generated_extension_${_typesupport_impl}_files "")
 endforeach()
 
-foreach(_idl_file ${rosidl_generate_interfaces_IDL_FILES})
+message("The ABS_IDL_FILES are ${rosidl_generate_interfaces_ABS_IDL_FILES}")
+
+foreach(_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
   get_filename_component(_parent_folder "${_idl_file}" DIRECTORY)
   get_filename_component(_parent_folder "${_parent_folder}" NAME)
   get_filename_component(_msg_name1 "${_idl_file}" NAME_WE)
   get_filename_component(_ext "${_idl_file}" EXT)
   string_camel_case_to_lower_case_underscore("${_msg_name1}" _module_name)
-
+  
+  message("Appending is ${_output_path}/${_parent_folder}/_${_module_name}.cs")
+  
   if(_parent_folder STREQUAL "msg")
     list(APPEND _generated_msg_cs_files
       "${_output_path}/${_parent_folder}/_${_module_name}.cs"
@@ -90,6 +94,7 @@ file(MAKE_DIRECTORY "${_output_path}")
 
 if(NOT _generated_msg_c_files STREQUAL "" OR NOT _generated_srv_c_files STREQUAL "" OR NOT _generated_action_c_files STREQUAL "")
     foreach(_typesupport_impl ${_typesupport_impls})
+      message("Typesupport impl: ${_typesupport_impl}")
       list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/_${PROJECT_NAME}_s.ep.${_typesupport_impl}.c")
       list(APPEND _generated_extension_files "${_generated_extension_${_typesupport_impl}_files}")
     endforeach()
@@ -113,6 +118,7 @@ set(target_dependencies
   "${rosidl_generator_cs_TEMPLATE_DIR}/_msg_pkg_typesupport_entry_point.c.em"
   "${rosidl_generator_cs_TEMPLATE_DIR}/_msg.cs.em"
   "${rosidl_generator_cs_TEMPLATE_DIR}/_srv.cs.em"
+  ${rosidl_generate_interfaces_ABS_IDL_FILES}
   ${_dependency_files})
 foreach(dep ${target_dependencies})
   if(NOT EXISTS "${dep}")
@@ -124,7 +130,7 @@ set(generator_arguments_file "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs__a
 rosidl_write_generator_arguments(
   "${generator_arguments_file}"
   PACKAGE_NAME "${PROJECT_NAME}"
-  ROS_INTERFACE_FILES "${rosidl_generate_interfaces_IDL_FILES}"
+  IDL_TUPLES "${rosidl_generate_interfaces_IDL_TUPLES}"
   ROS_INTERFACE_DEPENDENCIES "${_dependencies}"
   OUTPUT_DIR "${_output_path}"
   TEMPLATE_DIR "${rosidl_generator_cs_TEMPLATE_DIR}"

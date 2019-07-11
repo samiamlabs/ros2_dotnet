@@ -14,106 +14,33 @@
 
 from collections import defaultdict
 import os
-
-from rosidl_cmake import convert_camel_case_to_lower_case_underscore
-from rosidl_cmake import expand_template
-from rosidl_cmake import get_newest_modification_time
-from rosidl_cmake import read_generator_arguments
-from rosidl_generator_c import primitive_msg_type_to_c
-from rosidl_parser import parse_message_file
-from rosidl_parser import parse_service_file
-
+from rosidl_cmake import generate_files
+from rosidl_generator_c import idl_type_to_c
+from rosidl_generator_c import value_to_c
+from rosidl_parser.definition import AbstractGenericString
+from rosidl_parser.definition import AbstractNestedType
+from rosidl_parser.definition import AbstractSequence
+from rosidl_parser.definition import AbstractString
+from rosidl_parser.definition import AbstractWString
+from rosidl_parser.definition import Array
+from rosidl_parser.definition import BasicType
+from rosidl_parser.definition import BoundedSequence
+from rosidl_parser.definition import FLOATING_POINT_TYPES
+from rosidl_parser.definition import NamespacedType
+from rosidl_parser.definition import UnboundedSequence
 import logging
 
-
 def generate_cs(generator_arguments_file, typesupport_impls):
-    args = read_generator_arguments(generator_arguments_file)
-
-    template_dir = args['template_dir']
     type_support_impl_by_filename = {
         '_%s_s.ep.{0}.c'.format(impl): impl for impl in typesupport_impls
     }
 
-    logging.info("Generating C# interface code")
-
-    mapping_msgs = {
-        os.path.join(template_dir, '_msg.cs.em'): ['_%s.cs'],
-        os.path.join(template_dir, '_msg_support.c.em'): ['_%s_s.c'],
-    }
-    mapping_msg_pkg_extension = {
-        os.path.join(template_dir, '_msg_pkg_typesupport_entry_point.c.em'):
-        type_support_impl_by_filename.keys(),
-    }
-    mapping_srvs = {
-        os.path.join(template_dir, '_srv.cs.em'): ['_%s.cs'],
-    }
-
-    for template_file in mapping_msgs.keys():
-        assert os.path.exists(template_file), 'Could not find template: ' + template_file
-    for template_file in mapping_msg_pkg_extension.keys():
-        assert os.path.exists(template_file), 'Could not find template: ' + template_file
-    for template_file in mapping_srvs.keys():
-        assert os.path.exists(template_file), 'Could not find template: ' + template_file
-
-    functions = {
-        'convert_camel_case_to_lower_case_underscore': convert_camel_case_to_lower_case_underscore,
-        'primitive_msg_type_to_c': primitive_msg_type_to_c,
-        'get_dotnet_type': get_dotnet_type,
-    }
-
-    latest_target_timestamp = get_newest_modification_time(args['target_dependencies'])
-
-    modules = defaultdict(list)
-    message_specs = []
-    service_specs = []
-    for ros_interface_file in args['ros_interface_files']:
-        extension = os.path.splitext(ros_interface_file)[1]
-        subfolder = os.path.basename(os.path.dirname(ros_interface_file))
-        if extension == '.msg':
-            spec = parse_message_file(args['package_name'], ros_interface_file)
-            message_specs.append((spec, subfolder))
-            mapping = mapping_msgs
-            type_name = spec.base_type.type
-        elif extension == '.srv':
-            spec = parse_service_file(args['package_name'], ros_interface_file)
-            service_specs.append((spec, subfolder))
-            mapping = mapping_srvs
-            type_name = spec.srv_name
-        else:
-            continue
-
-        module_name = convert_camel_case_to_lower_case_underscore(type_name)
-        modules[subfolder].append((module_name, type_name))
-        for template_file, generated_filenames in mapping.items():
-            for generated_filename in generated_filenames:
-                data = {
-                    'module_name': module_name,
-                    'package_name': args['package_name'],
-                    'spec': spec, 'subfolder': subfolder,
-                }
-                data.update(functions)
-                generated_file = os.path.join(
-                    args['output_dir'], subfolder, generated_filename % module_name)
-                expand_template(
-                    template_file, data, generated_file,
-                    minimum_timestamp=latest_target_timestamp)
-
-    for template_file, generated_filenames in mapping_msg_pkg_extension.items():
-        for generated_filename in generated_filenames:
-            data = {
-                'package_name': args['package_name'],
-                'message_specs': message_specs,
-                'service_specs': service_specs,
-                'typesupport_impl': type_support_impl_by_filename.get(generated_filename, ''),
-            }
-            data.update(functions)
-            generated_file = os.path.join(
-                args['output_dir'], generated_filename % args['package_name'])
-            expand_template(
-                template_file, data, generated_file,
-                minimum_timestamp=latest_target_timestamp)
-
-    return 0
+    mapping = {
+        'idl.cs.em': '%s.cs',
+        'idl.c.em': '%s_s.c',
+        'idl_typesupport.c.em': type_support_impl_by_filename.keys(),
+     }
+    generate_files(generator_arguments_file, mapping, additional_context={'idl_type_to_c': idl_type_to_c, 'value_to_c' : value_to_c})
 
 
 def get_builtin_dotnet_type(type_, use_primitives=True):
@@ -163,7 +90,7 @@ def get_builtin_dotnet_type(type_, use_primitives=True):
 
 
 def get_dotnet_type(type_, use_primitives=True):
-    if not type_.is_primitive_type():
+    if not isinstance(type_, BasicType):
         return type_.pkg_name + ".msg." + type_.type
 
-    return get_builtin_dotnet_type(type_.type, use_primitives=use_primitives)
+    return get_builtin_dotnet_type(type_.typename, use_primitives=use_primitives)
