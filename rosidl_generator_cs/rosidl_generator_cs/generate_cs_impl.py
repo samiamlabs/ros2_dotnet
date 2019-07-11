@@ -17,6 +17,7 @@ import os
 from rosidl_cmake import generate_files
 from rosidl_generator_c import idl_type_to_c
 from rosidl_generator_c import value_to_c
+from rosidl_generator_c import idl_structure_type_to_c_typename
 from rosidl_parser.definition import AbstractGenericString
 from rosidl_parser.definition import AbstractNestedType
 from rosidl_parser.definition import AbstractSequence
@@ -29,6 +30,7 @@ from rosidl_parser.definition import FLOATING_POINT_TYPES
 from rosidl_parser.definition import NamespacedType
 from rosidl_parser.definition import UnboundedSequence
 import logging
+import sys
 
 def generate_cs(generator_arguments_file, typesupport_impls):
     type_support_impl_by_filename = {
@@ -37,11 +39,26 @@ def generate_cs(generator_arguments_file, typesupport_impls):
 
     mapping = {
         'idl.cs.em': '%s.cs',
-        'idl.c.em': '%s_s.c',
-        'idl_typesupport.c.em': type_support_impl_by_filename.keys(),
-     }
-    generate_files(generator_arguments_file, mapping, additional_context={'idl_type_to_c': idl_type_to_c, 'value_to_c' : value_to_c})
+        'idl.c.em': '%s_s.c'
+    }
 
+    print("Type_support mapping " + str(type_support_impl_by_filename), file=sys.stderr)
+    additional_context = {
+        'escape_string' : escape_string,
+        'get_field_name' : get_field_name,
+        'get_dotnet_type' : get_dotnet_type
+    }
+
+    generate_files(generator_arguments_file, mapping, additional_context)
+    for type_support in type_support_impl_by_filename.keys():
+        typemapping = { 'idl_typesupport.c.em': type_support }
+        generate_files(generator_arguments_file, typemapping)
+
+
+def escape_string(s):
+    s = s.replace('\\', '\\\\')
+    s = s.replace('"', '\\"')
+    return s
 
 def get_builtin_dotnet_type(type_, use_primitives=True):
     if type_ == 'bool':
@@ -91,6 +108,15 @@ def get_builtin_dotnet_type(type_, use_primitives=True):
 
 def get_dotnet_type(type_, use_primitives=True):
     if not isinstance(type_, BasicType):
-        return type_.pkg_name + ".msg." + type_.type
+        return type_.namespaced_name
 
     return get_builtin_dotnet_type(type_.typename, use_primitives=use_primitives)
+
+def upperfirst(s):
+    return s[0].capitalize() + s[1:]
+
+def get_field_name(type_name, field_name):
+    if upperfirst(field_name) == type_name:
+        return "{0}_".format(type_name)
+    else:
+        return upperfirst(field_name)

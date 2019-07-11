@@ -28,7 +28,7 @@ from rosidl_parser.definition import Message
 TEMPLATE(
     'msg.c.em',
     package_name=package_name, interface_path=interface_path,
-    message=message, include_directives=include_directives)
+    message=message, include_parts=include_parts)
 }@
 
 @[end for]@

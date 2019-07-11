@@ -56,41 +56,30 @@ foreach(_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
   get_filename_component(_msg_name1 "${_idl_file}" NAME_WE)
   get_filename_component(_ext "${_idl_file}" EXT)
   string_camel_case_to_lower_case_underscore("${_msg_name1}" _module_name)
-  
+
   message("Appending is ${_output_path}/${_parent_folder}/_${_module_name}.cs")
-  
+
   if(_parent_folder STREQUAL "msg")
     list(APPEND _generated_msg_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
+      "${_output_path}/${_parent_folder}/${_module_name}.cs"
     )
     list(APPEND _generated_msg_c_files
-      "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
+      "${_output_path}/${_parent_folder}/${_module_name}_s.c"
     )
   elseif(_parent_folder STREQUAL "srv")
-    if("_${_module_name}_s.c" MATCHES "(.*)__response(.*)" OR "_${_module_name}_s.c" MATCHES "(.*)__request(.*)")
-      list(APPEND _generated_srv_c_files
-        "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
-      )
-    endif()
-    list(APPEND _generated_srv_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
-    )
   elseif(_parent_folder STREQUAL "action")
-    # C files generated for <msg>.msg, <service>_Request.msg and <service>_Response.msg but not <service>.srv
-    if(_ext STREQUAL ".msg")
-      list(APPEND _generated_action_c_files
-        "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
-      )
-    endif()
-    list(APPEND _generated_action_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
-    )
   else()
     message(FATAL_ERROR "Interface file with unknown parent folder: ${_idl_file}")
   endif()
 endforeach()
 
+if(_generated_msg_c_files STREQUAL "")
+  return()
+endif()
+
 file(MAKE_DIRECTORY "${_output_path}")
+
+
 
 if(NOT _generated_msg_c_files STREQUAL "" OR NOT _generated_srv_c_files STREQUAL "" OR NOT _generated_action_c_files STREQUAL "")
     foreach(_typesupport_impl ${_typesupport_impls})
@@ -114,10 +103,9 @@ endforeach()
 set(target_dependencies
   "${rosidl_generator_cs_BIN}"
   ${rosidl_generator_cs_GENERATOR_FILES}
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg_support.c.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg_pkg_typesupport_entry_point.c.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg.cs.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_srv.cs.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl_typesupport.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl.cs.em"
   ${rosidl_generate_interfaces_ABS_IDL_FILES}
   ${_dependency_files})
 foreach(dep ${target_dependencies})
@@ -143,19 +131,6 @@ if(NOT _generated_msg_cs_files STREQUAL "")
   get_filename_component(_msg_package_dir2 "${_msg_package_dir1}" NAME)
 endif()
 
-if(NOT _generated_srv_cs_files STREQUAL "")
-  list(GET _generated_srv_cs_files 0 _srv_file)
-  get_filename_component(_srv_package_dir1 "${_srv_file}" DIRECTORY)
-  get_filename_component(_srv_package_dir2 "${_srv_package_dir1}" NAME)
-endif()
-
-if(NOT _generated_action_cs_files STREQUAL "")
-  list(GET _generated_action_cs_files 0 _action_file)
-  get_filename_component(_action_package_dir1 "${_action_file}" DIRECTORY)
-  get_filename_component(_action_package_dir2 "${_action_package_dir1}" NAME)
-endif()
-
-
 set(_target_suffix "__cs")
 
 # move custom command into a subdirectory to avoid multiple invocations on Windows
@@ -174,8 +149,6 @@ set_property(
 set(_target_name_lib "${rosidl_generate_interfaces_TARGET}__csharp_native")
 add_library(${_target_name_lib} SHARED
   ${_generated_msg_c_files}
-  ${_generated_srv_c_files}
-  ${_generated_action_c_files}
 )
 add_dependencies(
   ${_target_name_lib}

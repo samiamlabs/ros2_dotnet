@@ -35,7 +35,10 @@ from rosidl_parser.definition import Message
 TEMPLATE(
     'msg.cs.em',
     package_name=package_name, interface_path=interface_path,
-    message=message, include_directives=include_directives)
+    message=message, include_directives=include_directives,
+    get_dotnet_type=get_dotnet_type, get_field_name=get_field_name,
+    escape_string = escape_string
+    )
 }@
 
 @[end for]@

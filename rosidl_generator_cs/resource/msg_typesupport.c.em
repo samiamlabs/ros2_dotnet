@@ -7,6 +7,7 @@
 @# Context:
 @#  - package_name
 @#  - interface_path
+@#  - include_parts
 @#  - message (IdlMessage structure)
 @#######################################################################
 @
@@ -18,8 +19,7 @@
 
 @{
 includes = {}
-type_name = message.structure.namespaced_type.name
-key = '%s/%s/%s' % (package_name, interface_path, type_name)
+key = "/".join(include_parts)
 includes[key + '_support'] = '#include <%s__type_support.h>' % key
 includes[key + '_struct'] = '#include <%s__struct.h>' % key
 includes[key + '_functions'] = '#include <%s__functions.h>' % key
@@ -29,8 +29,7 @@ includes[key + '_functions'] = '#include <%s__functions.h>' % key
 @[end for]@
 
 ROSIDL_GENERATOR_C_EXPORT
-void * @(package_name)__@(interface_path)__@(type_name)__get_type_support()
+void * @(package_name)__@(interface_path)__@(message.structure.namespaced_type.name)__get_type_support()
 {
-    return (void *)ROSIDL_GET_MSG_TYPE_SUPPORT(@(package_name), @(interface_path), @(type_name));
+    return (void *)ROSIDL_GET_MSG_TYPE_SUPPORT(@(package_name), @(interface_path), @(message.structure.namespaced_type.name));
 }
-@[end for]@
