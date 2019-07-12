@@ -32,7 +32,6 @@ c_full_name = idl_type_to_c(message.structure.namespaced_type)
 @[for ns in message.structure.namespaced_type.namespaces]@
 namespace @(ns)
 {
-
 @[end for]@
 // message class
 public class @(message_class) : IRclcsMessage
@@ -40,13 +39,14 @@ public class @(message_class) : IRclcsMessage
   private IntPtr handle;
   private bool disposed;
   private bool isTopLevelMsg;
+  private static readonly DllLoadUtils dllLoadUtils;
 
   // constant declarations
 @[for constant in message.constants]@
 @[ if isinstance(constant.type, AbstractString)]@
-  public static const @(get_dotnet_type(constant.type)) @(constant.name) = "@(escape_string(constant.value))";
+  public const @(get_dotnet_type(constant.type)) @(constant.name) = "@(escape_string(constant.value))";
 @[ else]@
-  public static const @(get_dotnet_type(constant.type)) @(constant.name) =
+  public const @(get_dotnet_type(constant.type)) @(constant.name) =
 @[  if isinstance(constant.type, BasicType) and constant.type.typename == "float"]@
     @('%sf' % constant.value)@
 @[  else]@
@@ -58,9 +58,7 @@ public class @(message_class) : IRclcsMessage
   // members
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, BasicType)]@
-  using _@(member.name)_type =
-  @(get_dotnet_type(member.type));
-  public _@(member.name)_type @(member.name) { get; set; }
+  public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name)) { get; set; }
 @[  end if]@
 @[end for]@
 
@@ -118,8 +116,8 @@ public class @(message_class) : IRclcsMessage
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, BasicType)]@
     IntPtr native_read_field_@(member.name)_ptr =
-      dllLoadUtils.GetProcAddress(nativelibrary, "native_read_field_@(member.name)");
-    @(message.structure.namespaced_type.name).@(c_full_name)_native_read_field_@(member.name) =
+      dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_read_field_@(member.name)");
+    @(message.structure.namespaced_type.name).native_read_field_@(member.name) =
       (NativeReadField@(get_field_name(member.type, member.name))Type)Marshal.GetDelegateForFunctionPointer(
       native_read_field_@(member.name)_ptr, typeof(NativeReadField@(get_field_name(member.type, member.name))Type));
 
@@ -132,9 +130,12 @@ public class @(message_class) : IRclcsMessage
 @[end for]@
   }
 
-  public static IntPtr GetTypeSupport()
+  public IntPtr TypeSupportHandle
   {
-    return native_get_typesupport();
+    get
+    {
+      return native_get_typesupport();
+    }
   }
 
   public @(message.structure.namespaced_type.name)()
@@ -149,6 +150,11 @@ public class @(message_class) : IRclcsMessage
   {
     this.handle = handle;
     SetNestedHandles();
+  }
+
+  private void SetNestedHandles()
+  {
+    //TODO
   }
 
   //TODO (adamdbrw): bad design. One has to call the constructor, extract the handle and modify it outside with rcl_take
@@ -172,7 +178,7 @@ public class @(message_class) : IRclcsMessage
   {
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, BasicType)]@
-    native_write_field_@(member.name)(messageHandle, @(get_field_name(member.type, member.name)));
+    native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name)));
 @[  else]@
 @[  end if]@
 @[end for]@
@@ -184,7 +190,7 @@ public class @(message_class) : IRclcsMessage
     {
       if(isTopLevelMsg)
       {
-        handle = native_destroy_native_message(handle);
+        native_destroy_native_message(handle);
         disposed = true;
       }
     }
@@ -203,11 +209,10 @@ public class @(message_class) : IRclcsMessage
       return handle;
     }
   }
-};  // class @(message.structure.namespaced_type.name)_
+};  // class @(message.structure.namespaced_type.name)
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @# close namespaces
 @#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 @[for ns in reversed(message.structure.namespaced_type.namespaces)]@
-
 }  // namespace @(ns)
 @[end for]@

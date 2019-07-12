@@ -29,7 +29,7 @@ includes[key + '_functions'] = '#include <%s__functions.h>' % key
 @[end for]@
 
 ROSIDL_GENERATOR_C_EXPORT
-void * @(package_name)__@(interface_path)__@(message.structure.namespaced_type.name)__get_type_support()
+void * @(package_name)__@(message.structure.namespaced_type.name)__get_type_support()
 {
-    return (void *)ROSIDL_GET_MSG_TYPE_SUPPORT(@(package_name), @(interface_path), @(message.structure.namespaced_type.name));
+    return (void *)ROSIDL_GET_MSG_TYPE_SUPPORT(@(package_name), @(include_parts[1]), @(message.structure.namespaced_type.name));
 }

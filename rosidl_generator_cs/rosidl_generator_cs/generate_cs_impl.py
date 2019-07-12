@@ -34,7 +34,7 @@ import sys
 
 def generate_cs(generator_arguments_file, typesupport_impls):
     type_support_impl_by_filename = {
-        '_%s_s.ep.{0}.c'.format(impl): impl for impl in typesupport_impls
+        '%s.ep.{0}.c'.format(impl): impl for impl in typesupport_impls
     }
 
     mapping = {
