@@ -45,7 +45,7 @@ if(NOT WIN32)
   endif()
 endif()
 
-message("The ABS_IDL_FILES are ${rosidl_generate_interfaces_ABS_IDL_FILES}")
+#message("The ABS_IDL_FILES are ${rosidl_generate_interfaces_ABS_IDL_FILES}")
 
 foreach(_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
   get_filename_component(_parent_folder "${_idl_file}" DIRECTORY)
@@ -121,12 +121,7 @@ rosidl_write_generator_arguments(
 
 file(MAKE_DIRECTORY "${_output_path}")
 
-set_property(
-  SOURCE
-  ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
-  PROPERTY GENERATED 1)
-
-message("Generating C# code for ROS interfaces ${_generated_msg_cs_files}")
+message(STATUS "Generating C# code for ROS interfaces ${_generated_msg_cs_files}")
 add_custom_command(
   OUTPUT ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
   COMMAND ${PYTHON_EXECUTABLE} ${rosidl_generator_cs_BIN}
@@ -136,8 +131,8 @@ add_custom_command(
   COMMENT "Generating C# code for ROS interfaces"
   VERBATIM
 )
-message("Adding C# code for ROS interfaces done")
 
+set(_target_suffix "__cs")
 if(TARGET ${rosidl_generate_interfaces_TARGET}${_target_suffix})
   message(WARNING "Custom target ${rosidl_generate_interfaces_TARGET}${_target_suffix} already exists")
 else()
@@ -149,6 +144,14 @@ else()
     ${_generated_msg_c_files}
   )
 endif()
+
+set_property(
+  SOURCE
+  ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
+  PROPERTY GENERATED 1)
+
+#rosidl_target_interfaces(${_target_name_lib}
+#    ${rosidl_generate_interfaces_TARGET} rosidl_typesupport_c)
 
 foreach(_generated_msg_c_ts_file ${_generated_msg_c_ts_files})
   get_filename_component(_full_folder "${_generated_msg_c_ts_file}" DIRECTORY)
@@ -228,6 +231,8 @@ foreach(_generated_msg_c_ts_file ${_generated_msg_c_ts_files})
       set(_extension_link_flags "-Wl,-undefined,error")
     endif()
   endif()
+
+  message("Link libraries: ${PROJECT_NAME}__${_typesupport_impl}")
   target_link_libraries(
     ${_target_name}
     ${PROJECT_NAME}__${_typesupport_impl}
@@ -309,6 +314,7 @@ foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
   endforeach()
 endforeach()
 
+message("Assembly deps dll: ${_assembly_deps_dll}")
 add_dotnet_library(${PROJECT_NAME}_assembly
   SOURCES
   ${_generated_msg_cs_files}
@@ -326,6 +332,6 @@ if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
     get_filename_component(_msg_package_dir "${_msg_package_dir}" DIRECTORY)
 
     install_dotnet(${PROJECT_NAME}_assembly DESTINATION "lib/dotnet")
-    ament_export_assemblies_dll("lib/dotnet/${PROJECT_NAME}_assemblies.dll")
+    ament_export_assemblies_dll("lib/dotnet/${PROJECT_NAME}_assembly.dll")
   endif()
 endif()

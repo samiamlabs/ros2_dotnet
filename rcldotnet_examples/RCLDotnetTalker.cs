@@ -21,9 +21,9 @@ namespace ConsoleApplication
 
             while (Rclcs.Ok(ctx))
             {
-                msg.data = "Hello World: " + i;
+                msg.Data = "Hello World: " + i;
                 i++;
-                Console.WriteLine("Publishing: \"" + msg.data + "\"");
+                Console.WriteLine("Publishing: \"" + msg.Data + "\"");
                 chatter_pub.Publish(msg);
 
                 // Sleep a little bit between each message

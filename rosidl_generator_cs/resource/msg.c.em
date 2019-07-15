@@ -14,7 +14,7 @@
 @{
 from rosidl_generator_c import idl_type_to_c
 from rosidl_generator_c import idl_structure_type_to_c_typename
-from rosidl_parser.definition import AbstractString
+from rosidl_parser.definition import AbstractGenericString
 from rosidl_parser.definition import BasicType
 }@
 
@@ -31,7 +31,7 @@ have_not_included_string = True
 #include <@(include_path)__struct.h>
 #include <@(include_path)__functions.h>
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, AbstractString) and have_not_included_string]@
+@[  if isinstance(member.type, AbstractGenericString) and have_not_included_string]@
 @{have_not_included_string = False}@
 #include <rosidl_generator_c/string.h>
 #include <rosidl_generator_c/string_functions.h>
@@ -40,18 +40,12 @@ have_not_included_string = True
 @[end for]@
 
 
-void *@(msg_typename)_native_create_native_message()
-{
-   @(msg_typename) *ros_message = @(msg_typename)__create();
-   return ros_message;
-}
-
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
+@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
 @(idl_type_to_c(member.type)) @(msg_typename)_native_read_field_@(member.name)(void *message_handle)
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
-@[    if  isinstance(member.type, AbstractString)]@
+@[    if  isinstance(member.type, AbstractGenericString)]@
   return ros_message->@(member.name).data;
 @[    else]@
   return ros_message->@(member.name);
@@ -61,11 +55,11 @@ void *@(msg_typename)_native_create_native_message()
 @[end for]@
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
+@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
 void @(msg_typename)_native_write_field_@(member.name)(void *message_handle, @(idl_type_to_c(member.type)) value)
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
-@[    if  isinstance(member.type, AbstractString)]@
+@[    if  isinstance(member.type, AbstractGenericString)]@
   rosidl_generator_c__String__assign(
     &ros_message->@(member.name), value);
 @[    else]@
@@ -74,8 +68,3 @@ void @(msg_typename)_native_write_field_@(member.name)(void *message_handle, @(i
 }
 @[  end if]@
 @[end for]@
-
-void @(msg_typename)_native_destroy_native_message(void *raw_ros_message) {
-  @(msg_typename) *ros_message = (@(msg_typename) *)raw_ros_message;
-  @(msg_typename)__destroy(ros_message);
-}

@@ -9,6 +9,7 @@
 @#######################################################################
 @{
 from rosidl_parser.definition import AbstractNestedType
+from rosidl_parser.definition import AbstractGenericString
 from rosidl_parser.definition import AbstractString
 from rosidl_parser.definition import AbstractWString
 from rosidl_parser.definition import BasicType
@@ -26,6 +27,7 @@ from rosidl_generator_c import idl_type_to_c
 
 @{
 message_class = message.structure.namespaced_type.name
+message_class_lower = message_class.lower()
 c_full_name = idl_type_to_c(message.structure.namespaced_type)
 }
 
@@ -43,22 +45,13 @@ public class @(message_class) : IRclcsMessage
 
   // constant declarations
 @[for constant in message.constants]@
-@[ if isinstance(constant.type, AbstractString)]@
-  public const @(get_dotnet_type(constant.type)) @(constant.name) = "@(escape_string(constant.value))";
-@[ else]@
-  public const @(get_dotnet_type(constant.type)) @(constant.name) =
-@[  if isinstance(constant.type, BasicType) and constant.type.typename == "float"]@
-    @('%sf' % constant.value)@
-@[  else]@
-    @(constant.value);
-@[  end if]@
-@[ end if]@
+  public const @(get_dotnet_type(constant.type)) @(constant.name) = @(constant_value_to_dotnet(constant.type, constant.value));
 @[end for]@
 
   // members
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
-  public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name)) { get; set; }
+@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
+  public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name, message_class)) { get; set; }
 @[  end if]@
 @[end for]@
 
@@ -75,33 +68,33 @@ public class @(message_class) : IRclcsMessage
   private static NativeDestroyNativeMessageType native_destroy_native_message = null;
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
-@[    if isinstance(member.type, AbstractString)]@
+@[  if isinstance(member.type, AbstractGenericString)]@
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-  private delegate IntPtr NativeReadField@(get_field_name(member.type, member.name))Type(IntPtr messageHandle);
+  private delegate IntPtr NativeReadField@(get_field_name(member.type, member.name, message_class))Type(IntPtr messageHandle);
 
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-  private delegate void NativeWriteField@(get_field_name(member.type, member.name))Type(
+  private delegate void NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle, [MarshalAs (UnmanagedType.LPStr)] string value);
-@[    else]@
+@[  elif isinstance(member.type, BasicType)]@
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-  private delegate @(get_dotnet_type(member.type)) NativeReadField@(get_field_name(member.type, member.name))Type(
+  private delegate @(get_dotnet_type(member.type)) NativeReadField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle);
 
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-  private delegate void NativeWriteField@(get_field_name(member.type, member.name))Type(
+  private delegate void NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle, @(get_dotnet_type(member.type)) value);
-@[    end if]@
-  private static NativeReadField@(get_field_name(member.type, member.name))Type native_read_field_@(member.name) = null;
-  private static NativeWriteField@(get_field_name(member.type, member.name))Type native_write_field_@(member.name) = null;
+@[  end if]@
+@[  if isinstance(member.type, AbstractGenericString) or isinstance(member.type, BasicType)]@
+  private static NativeReadField@(get_field_name(member.type, member.name, message_class))Type native_read_field_@(member.name) = null;
+  private static NativeWriteField@(get_field_name(member.type, member.name, message_class))Type native_write_field_@(member.name) = null;
 @[  end if]@
 @[end for]@
 
   static @(message.structure.namespaced_type.name)()
   {
     dllLoadUtils = DllLoadUtilsFactory.GetDllLoadUtils();
-    IntPtr nativelibrary = dllLoadUtils.LoadLibrary("@(package_name)_@(message_class)__rosidl_typesupport_c");
-    IntPtr native_get_typesupport_ptr = dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_typesupport");
+    IntPtr nativelibrary = dllLoadUtils.LoadLibrary("@(package_name)_@(message_class_lower)__rosidl_typesupport_c");
+    IntPtr native_get_typesupport_ptr = dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_type_support");
     @(message_class).native_get_typesupport = (NativeGetTypeSupportType)Marshal.GetDelegateForFunctionPointer(
       native_get_typesupport_ptr, typeof(NativeGetTypeSupportType));
 
@@ -114,18 +107,18 @@ public class @(message_class) : IRclcsMessage
       native_destroy_native_message_ptr, typeof(NativeDestroyNativeMessageType));
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
+@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
     IntPtr native_read_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_read_field_@(member.name)");
     @(message.structure.namespaced_type.name).native_read_field_@(member.name) =
-      (NativeReadField@(get_field_name(member.type, member.name))Type)Marshal.GetDelegateForFunctionPointer(
-      native_read_field_@(member.name)_ptr, typeof(NativeReadField@(get_field_name(member.type, member.name))Type));
+      (NativeReadField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+      native_read_field_@(member.name)_ptr, typeof(NativeReadField@(get_field_name(member.type, member.name, message_class))Type));
 
     IntPtr native_write_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_write_field_@(member.name)");
     @(message.structure.namespaced_type.name).native_write_field_@(member.name) =
-      (NativeWriteField@(get_field_name(member.type, member.name))Type)Marshal.GetDelegateForFunctionPointer(
-      native_write_field_@(member.name)_ptr, typeof(NativeWriteField@(get_field_name(member.type, member.name))Type));
+      (NativeWriteField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+      native_write_field_@(member.name)_ptr, typeof(NativeWriteField@(get_field_name(member.type, member.name, message_class))Type));
 @[  end if]@
 @[end for]@
   }
@@ -161,15 +154,13 @@ public class @(message_class) : IRclcsMessage
   public void ReadNativeMessage()
   {
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
-@[    if isinstance(member.type, AbstractString)]@
+@[  if isinstance(member.type, AbstractString)]@
     {
       IntPtr pStr = native_read_field_@(member.name)(handle);
-      @(get_field_name(member.type, member.name)) = Marshal.PtrToStringAnsi(pStr);
+      @(get_field_name(member.type, member.name, message_class)) = Marshal.PtrToStringAnsi(pStr);
     }
-@[    else]@
-    @(get_field_name(member.type, member.name)) = native_read_field_@(member.name)(handle);
-@[    end if]@
+@[  elif isinstance(member.type, BasicType)]@
+    @(get_field_name(member.type, member.name, message_class)) = native_read_field_@(member.name)(handle);
 @[  end if]@
 @[end for]@
   }
@@ -177,8 +168,8 @@ public class @(message_class) : IRclcsMessage
   public void WriteNativeMessage()
   {
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType)]@
-    native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name)));
+@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
+    native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name, message_class)));
 @[  else]@
 @[  end if]@
 @[end for]@
