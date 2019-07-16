@@ -16,8 +16,8 @@ Linux
 ```
 mkdir -p ~/ros2_dotnet_ws/src
 cd ~/ros2_dotnet_ws
-wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/master/ros2_dotnet_crystal.repos
-vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_crystal.repos
+wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/dashing/ros2_dotnet_dashing.repos
+vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_dashing.repos
 colcon build
 
 ```
