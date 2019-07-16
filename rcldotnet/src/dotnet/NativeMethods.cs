@@ -268,6 +268,8 @@ namespace rclcs
                                               ulong number_of_timers,
                                               ulong number_of_clients,
                                               ulong number_of_services,
+                                              ulong number_of_events,
+                                              ref rcl_context_t context,
                                               rcl_allocator_t allocator);
         internal static WaitSetInitType
             rcl_wait_set_init =

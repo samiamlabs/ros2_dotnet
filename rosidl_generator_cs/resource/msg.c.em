@@ -42,7 +42,8 @@ have_not_included_string = True
 
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
-@(idl_type_to_c(member.type)) @(msg_typename)_native_read_field_@(member.name)(void *message_handle)
+ROSIDL_GENERATOR_C_EXPORT
+@(get_c_type(member.type)) @(msg_typename)_native_read_field_@(member.name)(void *message_handle)
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
 @[    if  isinstance(member.type, AbstractGenericString)]@
@@ -56,7 +57,8 @@ have_not_included_string = True
 
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
-void @(msg_typename)_native_write_field_@(member.name)(void *message_handle, @(idl_type_to_c(member.type)) value)
+ROSIDL_GENERATOR_C_EXPORT
+void @(msg_typename)_native_write_field_@(member.name)(void *message_handle, @(get_c_type(member.type)) value)
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
 @[    if  isinstance(member.type, AbstractGenericString)]@

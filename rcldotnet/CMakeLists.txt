@@ -43,15 +43,20 @@ function(configure_csharp_c_extension_library _library_name)
 endfunction()
 
 add_library(
-  rclcs_native
-  SHARED src/_rclcs.c
+  rclcs_native SHARED
+  src/_rclcs.c
 )
-configure_csharp_c_extension_library(rclcs_native)
 ament_target_dependencies(rclcs_native
+  "builtin_interfaces"
   "rcl"
+  "rosidl_generator_c"
+  "rosidl_typesupport_c"
   "rcl_yaml_param_parser"
   "rcutils"
 )
+ament_export_libraries(rclcs_native)
+configure_csharp_c_extension_library(rclcs_native)
+
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 

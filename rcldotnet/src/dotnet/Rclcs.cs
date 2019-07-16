@@ -42,7 +42,7 @@ namespace rclcs
         {
             while (Ok(context))
             {
-                SpinOnce(node, 0.1);
+                SpinOnce(node, context, 0.1);
             }
         }
 
@@ -51,12 +51,12 @@ namespace rclcs
             return NativeMethods.rcl_context_is_valid(ref context.handle);
         }
 
-        public static void SpinOnce(INode node, double timeoutSec)
+        public static void SpinOnce(INode node, Context context, double timeoutSec)
         {
             // NOTE(sam): Only single thread, add support for other executors?
             if (timeoutSec > 0.0001d)
             {
-                WaitSet waitSet = new WaitSet(node.Subscriptions);
+                WaitSet waitSet = new WaitSet(context, node.Subscriptions);
                 waitSet.Wait(timeoutSec);
             }
 

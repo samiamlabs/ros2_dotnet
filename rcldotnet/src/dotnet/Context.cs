@@ -33,8 +33,8 @@ namespace rclcs
 
         public Context()
         {
-            handle = NativeMethods.rcl_get_zero_initialized_context();
             allocator = NativeMethods.rcl_get_default_allocator();
+            handle = NativeMethods.rcl_get_zero_initialized_context();
         }
 
         public void Init()

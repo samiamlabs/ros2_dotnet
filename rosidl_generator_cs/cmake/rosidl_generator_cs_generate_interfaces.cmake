@@ -172,11 +172,10 @@ foreach(_generated_msg_c_ts_file ${_generated_msg_c_ts_files})
   set(_target_name "${_package_name}_${_base_msg_name}__${_typesupport_impl}")
 
   string_camel_case_to_lower_case_underscore("${_module_name}" _header_name)
-  set(_generated_msg_h_file "${_full_folder}/rcldotnet_${_header_name}.h")
 
   add_library(${_target_name} SHARED
     "${_generated_msg_c_ts_file}"
-    "${_generated_msg_h_files}"
+    "${_generated_msg_c_files}"
   )
 
   set(_destination_dir "${_output_path}/${_parent_folder}")
@@ -232,7 +231,7 @@ foreach(_generated_msg_c_ts_file ${_generated_msg_c_ts_files})
     endif()
   endif()
 
-  message("Link libraries: ${PROJECT_NAME}__${_typesupport_impl}")
+  #message("Link libraries: ${PROJECT_NAME}__${_typesupport_impl}")
   target_link_libraries(
     ${_target_name}
     ${PROJECT_NAME}__${_typesupport_impl}
@@ -314,7 +313,7 @@ foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
   endforeach()
 endforeach()
 
-message("Assembly deps dll: ${_assembly_deps_dll}")
+#message("Assembly deps dll: ${_assembly_deps_dll}")
 add_dotnet_library(${PROJECT_NAME}_assembly
   SOURCES
   ${_generated_msg_cs_files}

@@ -20,7 +20,7 @@ set(_assemblies_dep_dlls
     ${rosidl_generator_ASSEMBLIES_DLL}
 )
 
-message("Included assemblies: ${_assemblies_dep_dlls}")
+message("Included assemblies for examples: ${_assemblies_dep_dlls}")
 
 add_dotnet_executable(rcldotnet_talker
   RCLDotnetTalker.cs

@@ -47,7 +47,8 @@ def generate_cs(generator_arguments_file, typesupport_impls):
     additional_context = {
         'get_field_name' : get_field_name,
         'get_dotnet_type' : get_dotnet_type,
-        'constant_value_to_dotnet' : constant_value_to_dotnet
+        'constant_value_to_dotnet' : constant_value_to_dotnet,
+        'get_c_type' : get_c_type
     }
 
     generate_files(generator_arguments_file, mapping, additional_context)
@@ -124,6 +125,12 @@ def get_builtin_dotnet_type(type_, use_primitives=True):
         return 'System.String'
 
     assert False, "unknown type '%s'" % type_
+
+
+def get_c_type(type_):
+    if isinstance(type_, AbstractGenericString):
+        return 'const char *'
+    return idl_type_to_c(type_)
 
 
 def get_dotnet_type(type_, use_primitives=True):
