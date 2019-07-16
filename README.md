@@ -1,7 +1,7 @@
 ROS2 for .NET
 =============
 
-TODO - update README. This works for Dashing now.
+TODO - update README. This works a bit for Dashing now - examples of talker and listener and message generation. (lots to do still)
 
 Notice
 ------
