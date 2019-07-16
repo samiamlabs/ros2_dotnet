@@ -1,6 +1,8 @@
 ROS2 for .NET
 =============
 
+TODO - update README. This works for Dashing now.
+
 Notice
 ------
 
