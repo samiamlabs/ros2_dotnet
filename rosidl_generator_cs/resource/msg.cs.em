@@ -17,6 +17,7 @@ from rosidl_parser.definition import BOOLEAN_TYPE
 from rosidl_parser.definition import CHARACTER_TYPES
 from rosidl_parser.definition import INTEGER_TYPES
 from rosidl_parser.definition import NamespacedType
+from rosidl_parser.definition import NamedType
 from rosidl_parser.definition import OCTET_TYPE
 from rosidl_parser.definition import UNSIGNED_INTEGER_TYPES
 from rosidl_generator_c import idl_type_to_c
@@ -50,7 +51,7 @@ public class @(message_class) : IRclcsMessage
 
   // members
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
+@[  if isinstance(member.type, (BasicType, AbstractGenericString, NamedType, NamespacedType))]@
   public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name, message_class)) { get; set; }
 @[  end if]@
 @[end for]@
@@ -84,9 +85,15 @@ public class @(message_class) : IRclcsMessage
   private delegate void NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle, @(get_dotnet_type(member.type)) value);
 @[  end if]@
-@[  if isinstance(member.type, AbstractGenericString) or isinstance(member.type, BasicType)]@
+@[  if isinstance(member.type, (AbstractGenericString, BasicType))]@
   private static NativeReadField@(get_field_name(member.type, member.name, message_class))Type native_read_field_@(member.name) = null;
   private static NativeWriteField@(get_field_name(member.type, member.name, message_class))Type native_write_field_@(member.name) = null;
+@[  end if]@
+@[  if isinstance(member.type, (NamedType, NamespacedType))]@
+  [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+  private delegate IntPtr NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type(
+    IntPtr messageHandle);
+  private static NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type native_get_nested_message_handle_@(member.name) = null;
 @[  end if]@
 @[end for]@
 
@@ -107,7 +114,7 @@ public class @(message_class) : IRclcsMessage
       native_destroy_native_message_ptr, typeof(NativeDestroyNativeMessageType));
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
+@[  if isinstance(member.type, (BasicType, AbstractGenericString))]@
     IntPtr native_read_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_read_field_@(member.name)");
     @(message_class).native_read_field_@(member.name) =
@@ -119,6 +126,12 @@ public class @(message_class) : IRclcsMessage
     @(message_class).native_write_field_@(member.name) =
       (NativeWriteField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
       native_write_field_@(member.name)_ptr, typeof(NativeWriteField@(get_field_name(member.type, member.name, message_class))Type));
+@[  elif isinstance(member.type, (NamedType, NamespacedType))]@
+    IntPtr native_get_nested_message_handle_@(member.name)_ptr =
+      dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_nested_message_handle_@(member.name)");
+    @(message_class).native_get_nested_message_handle_@(member.name) =
+      (NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+      native_get_nested_message_handle_@(member.name)_ptr, typeof(NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type));
 @[  end if]@
 @[end for]@
   }
@@ -139,7 +152,8 @@ public class @(message_class) : IRclcsMessage
   }
 
   // internal constructor for nested types
-  internal @(message_class)(IntPtr handle)
+  // TODO (adam) - can't be internal currently, e.g. rcl_interfaces log.cs uses builtin_interfaces time.cs
+  public @(message_class)(IntPtr handle)
   {
     this.handle = handle;
     SetNestedHandles();
@@ -147,7 +161,11 @@ public class @(message_class) : IRclcsMessage
 
   private void SetNestedHandles()
   {
-    //TODO
+@[for member in message.structure.members]@
+@[  if isinstance(member.type, (NamedType, NamespacedType))]@
+    @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type))(native_get_nested_message_handle_@(member.name)(handle));
+@[  end if]@
+@[end for]@
   }
 
   //TODO (adamdbrw): bad design. One has to call the constructor, extract the handle and modify it outside with rcl_take
@@ -161,6 +179,8 @@ public class @(message_class) : IRclcsMessage
     }
 @[  elif isinstance(member.type, BasicType)]@
     @(get_field_name(member.type, member.name, message_class)) = native_read_field_@(member.name)(handle);
+@[  elif isinstance(member.type, (NamedType, NamespacedType))]
+    @(get_field_name(member.type, member.name, message_class)).ReadNativeMessage();
 @[  end if]@
 @[end for]@
   }
@@ -168,9 +188,10 @@ public class @(message_class) : IRclcsMessage
   public void WriteNativeMessage()
   {
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
+@[  if isinstance(member.type, (BasicType, AbstractGenericString))]@
     native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name, message_class)));
-@[  else]@
+@[  elif isinstance(member.type, (NamedType, NamespacedType))]
+    @(get_field_name(member.type, member.name, message_class)).WriteNativeMessage();
 @[  end if]@
 @[end for]@
   }

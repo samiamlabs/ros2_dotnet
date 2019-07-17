@@ -138,7 +138,7 @@ def get_dotnet_type(type_, use_primitives=True):
         return 'System.String'
 
     if isinstance(type_, NamespacedType):
-        return type_.namespaced_name
+        return ".".join(type_.namespaced_name())
 
     if isinstance(type_, NamedType):
         return type_.name
