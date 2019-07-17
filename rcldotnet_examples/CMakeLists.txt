@@ -6,7 +6,6 @@ find_package(ament_cmake REQUIRED)
 find_package(rcldotnet REQUIRED)
 find_package(rcldotnet_common REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(rcldotnet REQUIRED)
 find_package(dotnet_cmake_module REQUIRED)
 find_package(rosidl_generator_cs REQUIRED)
 
