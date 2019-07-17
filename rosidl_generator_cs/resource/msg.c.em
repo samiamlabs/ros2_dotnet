@@ -79,7 +79,7 @@ void @(msg_typename)_native_write_field_@(member.name)(void *message_handle, @(g
 n_type = get_c_type(member.type.name) if isinstance(member.type, NamedType) else idl_structure_type_to_c_typename(member.type)
 }
 ROSIDL_GENERATOR_C_EXPORT
-void * @(msg_typename)_get_nested_message_handle_@(member.name)(void *raw_ros_message)
+void * @(msg_typename)_native_get_nested_message_handle_@(member.name)(void *raw_ros_message)
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)raw_ros_message;
   @(n_type) *nested_message = &(ros_message->@(member.name));
