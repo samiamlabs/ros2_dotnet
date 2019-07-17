@@ -3,6 +3,10 @@ ROS2 for .NET
 
 TODO - update README. This works a bit for Dashing now - examples of talker and listener and message generation. (lots to do still)
 
+Most important Issues 
+- build dependencies are broken, currently needs to run colcon build twice.
+- Nested types and arrays
+
 Notice
 ------
 
