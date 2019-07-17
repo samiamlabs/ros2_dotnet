@@ -90,7 +90,7 @@ public class @(message_class) : IRclcsMessage
 @[  end if]@
 @[end for]@
 
-  static @(message.structure.namespaced_type.name)()
+  static @(message_class)()
   {
     dllLoadUtils = DllLoadUtilsFactory.GetDllLoadUtils();
     IntPtr nativelibrary = dllLoadUtils.LoadLibrary("@(package_name)_@(message_class_lower)__rosidl_typesupport_c");
@@ -110,13 +110,13 @@ public class @(message_class) : IRclcsMessage
 @[  if isinstance(member.type, BasicType) or isinstance(member.type, AbstractGenericString)]@
     IntPtr native_read_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_read_field_@(member.name)");
-    @(message.structure.namespaced_type.name).native_read_field_@(member.name) =
+    @(message_class).native_read_field_@(member.name) =
       (NativeReadField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
       native_read_field_@(member.name)_ptr, typeof(NativeReadField@(get_field_name(member.type, member.name, message_class))Type));
 
     IntPtr native_write_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_write_field_@(member.name)");
-    @(message.structure.namespaced_type.name).native_write_field_@(member.name) =
+    @(message_class).native_write_field_@(member.name) =
       (NativeWriteField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
       native_write_field_@(member.name)_ptr, typeof(NativeWriteField@(get_field_name(member.type, member.name, message_class))Type));
 @[  end if]@
@@ -131,7 +131,7 @@ public class @(message_class) : IRclcsMessage
     }
   }
 
-  public @(message.structure.namespaced_type.name)()
+  public @(message_class)()
   {
     isTopLevelMsg = true;
     handle = native_create_native_message();
@@ -139,7 +139,7 @@ public class @(message_class) : IRclcsMessage
   }
 
   // internal constructor for nested types
-  internal @(message.structure.namespaced_type.name)(IntPtr handle)
+  internal @(message_class)(IntPtr handle)
   {
     this.handle = handle;
     SetNestedHandles();
@@ -187,7 +187,7 @@ public class @(message_class) : IRclcsMessage
     }
   }
 
-  ~@(message.structure.namespaced_type.name)()
+  ~@(message_class)()
   {
     Dispose();
   }
@@ -200,7 +200,7 @@ public class @(message_class) : IRclcsMessage
       return handle;
     }
   }
-};  // class @(message.structure.namespaced_type.name)
+};  // class @(message_class)
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @# close namespaces
 @#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
