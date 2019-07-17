@@ -19,13 +19,16 @@ namespace ConsoleApplication
 
             while (Rclcs.Ok(ctx))
             {
+                // adamdbrw - if no at least small sleep is made before
+                // the first published message, it doesn't reach subscribers
+                // Needs investigation for how to put a valid check here
+                // TODO (adam) replace with a proper check
+                Thread.Sleep(500);
                 msg.Data = "Hello World: " + i;
                 i++;
                 Console.WriteLine("Publishing: \"" + msg.Data + "\"");
                 chatter_pub.Publish(msg);
-
-                // Sleep a little bit between each message
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
             Rclcs.Shutdown(ctx);
         }
