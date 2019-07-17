@@ -5,7 +5,7 @@ TODO - update README. This works a bit for Dashing now - examples of talker and 
 
 Most important Issues 
 - build dependencies are broken, currently needs to run colcon build twice.
-- Nested types and arrays
+- Nested types and arrays (Edit: NamedTypes and NamespacedTypes generate successfuly now)
 
 Notice
 ------
