@@ -13,6 +13,8 @@ I did this for my own purpose, but if someone is interested, here it is. I also 
 Linux
 -----
 
+Make sure to source your ROS2 Dashing environment
+
 ```
 mkdir -p ~/ros2_dotnet_ws/src
 cd ~/ros2_dotnet_ws
@@ -20,4 +22,14 @@ wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/dashing/ros2_dotnet_
 vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_dashing.repos
 colcon build
 
+```
+Running. Source install/setup.bash in both terminals:
+
+Talker:
+```
+ros2 run rcldotnet_examples rcldotnet_talker
+```
+Listener
+```
+ros2 run rcldotnet_examples rcldotnet_listener
 ```
