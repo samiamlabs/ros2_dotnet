@@ -3,9 +3,7 @@ ROS2 for .NET
 
 TODO - update README. This works a bit for Dashing now - examples of talker and listener and message generation. (lots to do still)
 
-Most important Issues 
-- build dependencies are broken, currently needs to run colcon build twice.
-- Nested types and arrays (Edit: NamedTypes and NamespacedTypes generate successfuly now)
+See Projects page for what tasks and contributions are needed.
 
 Notice
 ------
@@ -22,7 +20,7 @@ Make sure to source your ROS2 Dashing environment
 ```
 mkdir -p ~/ros2_dotnet_ws/src
 cd ~/ros2_dotnet_ws
-wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/dashing/ros2_dotnet_dashing.repos
+wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/master/ros2_dotnet_dashing.repos
 vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_dashing.repos
 colcon build
 
