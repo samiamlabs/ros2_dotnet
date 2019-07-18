@@ -15,7 +15,18 @@
 @#######################################################################
 @
 @{
-native_methods = 'NativeMethods%s' % (spec.base_type.type)
+from rosidl_parser.definition import Message
+messages = content.get_elements_of_type(Message)
+message = []
+
+if len(messages) == 0:
+  msg_type = "none"
+  message.structure.members = []  
+else:
+  msg_type = messages[0].structure.namespaced_type.name
+  message = messages[0]
+
+native_methods = 'NativeMethods%s' % (msg_type)
 }@
 using System;
 using System.Collections.Generic;
@@ -34,26 +45,26 @@ internal static class @(native_methods)
   private static readonly DllLoadUtils dllLoadUtils = DllLoadUtilsFactory.GetDllLoadUtils();
 
   private static readonly IntPtr typeSupportEntryPointLibrary = dllLoadUtils.LoadLibrary(
-    "@(spec.base_type.pkg_name)__rosidl_typesupport_c__csext");
+    "@(package_name)__rosidl_typesupport_c__csext");
 
   // NOTE(samaim): Possibly better to wrap functions in _msg_support.c instaid of accessing directry?
   private static readonly IntPtr typeSupportCLibrary = dllLoadUtils.LoadLibraryNoSuffix(
-    "@(spec.base_type.pkg_name)__rosidl_generator_c");
+    "@(package_name)__rosidl_generator_c");
 
   private static readonly IntPtr messageSupportLibrary = dllLoadUtils.LoadLibrary(
-  "@(spec.base_type.pkg_name)__csharp");
+  "@(package_name)__csharp");
 @{
-get_type_support = {'function_name': '%s__msg__%s__get_type_support' % (package_name, module_name),
+get_type_support = {'function_name': '%s__msg__%s__get_type_support' % (package_name, msg_type),
                     'args': '',
                     'return_type': 'IntPtr',
                     'native_library': 'typeSupportEntryPointLibrary'}
 
-create_message = {'function_name': '%s__msg__%s__create' % (package_name, spec.base_type.type),
+create_message = {'function_name': '%s__msg__%s__create' % (package_name, msg_type),
                   'args': '',
                   'return_type': 'IntPtr',
                   'native_library': 'typeSupportCLibrary'}
 
-destroy_message = {'function_name': '%s__msg__%s__destroy' % (package_name, spec.base_type.type),
+destroy_message = {'function_name': '%s__msg__%s__destroy' % (package_name, msg_type),
                    'args': 'IntPtr msg',
                    'return_type': 'IntPtr',
                    'native_library': 'typeSupportCLibrary'}
@@ -64,13 +75,13 @@ native_read_field_methods = []
 native_write_field_methods = []
 native_init_field_methods = []
 
-for field in spec.fields:
+for field in message.structure.members:
   if field.type.is_array:
     # String arrays
     write_args = 'IntPtr message_handle, [MarshalAs (UnmanagedType.LPArray, SizeParamIndex=0)] %s[] data, int size' % get_dotnet_type(field.type)
-    if field.type.type == 'string':
+    if field.type.typename == 'string':
       native_read_field_methods.append(
-        {'function_name': '%s_native_get_string_by_index_%s' % (module_name, field.name),
+        {'function_name': '%s_native_get_string_by_index_%s' % (type_name, field.name),
          'args': 'IntPtr message_handle, int index',
          'return_type': 'IntPtr',
          'native_library': 'messageSupportLibrary'})
@@ -79,20 +90,20 @@ for field in spec.fields:
     elif field.type.is_primitive_type():
       # Primitive arrays
       native_read_field_methods.append(
-        {'function_name': '%s_native_get_array_ptr_%s' % (module_name, field.name),
+        {'function_name': '%s_native_get_array_ptr_%s' % (msg_type, field.name),
          'args': 'IntPtr message_handle',
          'return_type': 'IntPtr',
          'native_library': 'messageSupportLibrary'})
     else:
       # Nested arrays
       native_read_field_methods.append(
-        {'function_name': '%s_native_get_handle_by_index_%s' % (module_name, field.name),
+        {'function_name': '%s_native_get_handle_by_index_%s' % (msg_type, field.name),
          'args': 'IntPtr message_handle, int index',
          'return_type': 'IntPtr',
          'native_library': 'messageSupportLibrary'})
 
       native_init_field_methods.append(
-        {'function_name': '%s_native_init_nested_array_%s' % (module_name, field.name),
+        {'function_name': '%s_native_init_nested_array_%s' % (msg_type, field.name),
          'args': 'IntPtr message_handle, int size',
          'return_type': 'bool',
          'native_library': 'messageSupportLibrary'})
@@ -102,14 +113,14 @@ for field in spec.fields:
 
     if (field.type.array_size is None or field.type.is_upper_bound):
       native_read_field_methods.append(
-        {'function_name': '%s_native_get_size_%s' % (module_name, field.name),
+        {'function_name': '%s_native_get_size_%s' % (msg_type, field.name),
          'args': 'IntPtr message_handle',
          'return_type': 'int',
          'native_library': 'messageSupportLibrary'})
 
 
     native_write_field_methods.append(
-      {'function_name': '%s_native_set_array_%s' % (module_name, field.name),
+      {'function_name': '%s_native_set_array_%s' % (msg_type, field.name),
        'args': write_args,
        'return_type': 'bool',
        'native_library': 'messageSupportLibrary'})
@@ -118,25 +129,25 @@ for field in spec.fields:
     read_return_type = get_dotnet_type(field.type)
     write_args = 'IntPtr message_handle, %s value' % get_dotnet_type(field.type)
 
-    if field.type.type == 'string':
+    if field.type.typename == 'string':
       read_return_type = 'IntPtr'
       write_args = 'IntPtr message_handle, [MarshalAs (UnmanagedType.LPStr)] string value'
 
     native_read_field_methods.append(
-      {'function_name': '%s_native_read_field_%s' % (module_name, field.name),
+      {'function_name': '%s_native_read_field_%s' % (msg_type, field.name),
        'args': 'IntPtr message_handle',
        'return_type': read_return_type,
        'native_library': 'messageSupportLibrary'})
 
     native_write_field_methods.append(
-      {'function_name': '%s_native_write_field_%s' % (module_name, field.name),
+      {'function_name': '%s_native_write_field_%s' % (msg_type, field.name),
        'args': write_args,
        'return_type': 'void',
        'native_library': 'messageSupportLibrary'})
 
   else:
     native_read_field_methods.append(
-      {'function_name': '%s_get_nested_message_handle_%s' % (module_name, field.name),
+      {'function_name': '%s_get_nested_message_handle_%s' % (msg_type, field.name),
        'args': 'IntPtr message_handle',
        'return_type': 'IntPtr',
        'native_library': 'messageSupportLibrary'})
@@ -164,27 +175,27 @@ native_methods_list.extend(native_init_field_methods)
 @[end for]@
 }
 
-public class @(spec.base_type.type): IRclcsMessage
+public class @(type_name): IRclcsMessage
 {
   private IntPtr handle;
 
   private bool disposed;
   private bool isTopLevelMsg;
 
-@[for field in spec.fields]@
+@[for field in message.structure.members]@
 @[  if not field.type.is_array and not field.type.is_primitive_type()]
 @{
-nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
+nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.typename)
 }@
   // Nested type detected! > @(nested_type)
   @(nested_type) @(field.name)_;
 @[  end if]
 @[end for]@
 
-@[for field in spec.fields]@
+@[for field in message.structure.members]@
 @[  if not field.type.is_array and not field.type.is_primitive_type()]
 @{
-nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
+nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.typename)
 }@
   public @(nested_type) @(field.name) {
     get
@@ -195,14 +206,14 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
 @[  end if]
 @[end for]@
 
-  public @(spec.base_type.type)()
+  public @(msg_type)()
   {
     isTopLevelMsg = true;
     handle = @(native_methods).@(create_message['function_name'])();
     SetNestedHandles();
   }
 
-  public @(spec.base_type.type)(IntPtr handle)
+  public @(msg_type)(IntPtr handle)
   {
     this.handle = handle;
     SetNestedHandles();
@@ -210,12 +221,12 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
 
   private void SetNestedHandles()
   {
-@[for field in spec.fields]@
+@[for field in message.structure.members]@
 @[  if not field.type.is_array and not field.type.is_primitive_type()]
 @{
-nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
+nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.typename)
 }@
-    @(field.name)_ = new @(nested_type)(@(native_methods).@(module_name)_get_nested_message_handle_@(field.name)(handle));
+    @(field.name)_ = new @(nested_type)(@(native_methods).@(msg_type)_get_nested_message_handle_@(field.name)(handle));
 @[  end if]
 @[end for]@
   }
@@ -232,7 +243,7 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
     }
   }
 
-  ~@(spec.base_type.type)()
+  ~@(msg_type)()
   {
     Dispose();
   }
@@ -258,16 +269,16 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
     }
   }
 
-@[for field in spec.fields]@
+@[for field in message.structure.members]@
 @[  if field.type.is_array and field.type.is_primitive_type()]
   public List<@(get_dotnet_type(field.type))> @(field.name)
   {
     get
     {
-@[      if field.type.type == 'string']
+@[      if field.type.typename == 'string']
       List<string> dataList = new List<string>();
 @[        if field.type.array_size is None or field.type.is_upper_bound]@
-      int size = @(native_methods).@(module_name)_native_get_size_@(field.name)(handle);
+      int size = @(native_methods).@(msg_type)_native_get_size_@(field.name)(handle);
 @[        else]
       int size = @(field.type.array_size);
 @[      end if]
@@ -275,7 +286,7 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
       IntPtr strPtr;
       for(int i = 0; i < size; i++)
       {
-        strPtr = @(native_methods).@(module_name)_native_get_string_by_index_@(field.name)(handle, i);
+        strPtr = @(native_methods).@(msg_type)_native_get_string_by_index_@(field.name)(handle, i);
         str = Marshal.PtrToStringAnsi(strPtr);
 				dataList.Add(str);
       }
@@ -284,12 +295,12 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
       unsafe
       {
 @[        if field.type.array_size is None or field.type.is_upper_bound]@
-      int size = @(native_methods).@(module_name)_native_get_size_@(field.name)(handle);
+      int size = @(native_methods).@(msg_type)_native_get_size_@(field.name)(handle);
 @[        else]
       int size = @(field.type.array_size);
 @[        end if]
         List<@(get_dotnet_type(field.type))> dataList = new List<@(get_dotnet_type(field.type))>();
-        @(get_dotnet_type(field.type))* data =  (@(get_dotnet_type(field.type))*)@(native_methods).@(module_name)_native_get_array_ptr_@(field.name)(handle);
+        @(get_dotnet_type(field.type))* data =  (@(get_dotnet_type(field.type))*)@(native_methods).@(msg_type)_native_get_array_ptr_@(field.name)(handle);
         for (int i = 0; i < size; i++)
         {
           @(get_dotnet_type(field.type)) value = data[i];
@@ -301,14 +312,14 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
     }
     set
     {
-@[      if field.type.type == 'string']
+@[      if field.type.typename == 'string']
 @[        if field.type.array_size is None or field.type.is_upper_bound]@
           string[] stringArray = new string[value.Count];
           for(int i = 0; i < value.Count; i++)
           {
             stringArray[i] = value[i];
           }
-          @(native_methods).@(module_name)_native_set_array_@(field.name)(handle, stringArray, stringArray.Length);
+          @(native_methods).@(msg_type)_native_set_array_@(field.name)(handle, stringArray, stringArray.Length);
 @[        else]
           //TODO(samiam): Setting static string arrays does not work yet
 @[        end if]
@@ -318,7 +329,7 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
         {
           data[i] = value[i];
         }
-        @(native_methods).@(module_name)_native_set_array_@(field.name)(handle, data, value.Count);
+        @(native_methods).@(msg_type)_native_set_array_@(field.name)(handle, data, value.Count);
 @[      end if]
     }
   }
@@ -328,28 +339,28 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
   {
     get
     {
-@[      if field.type.type == 'string']@
-      return Marshal.PtrToStringAnsi(@(native_methods).@(module_name)_native_read_field_@(field.name)(handle));
+@[      if field.type.typename == 'string']@
+      return Marshal.PtrToStringAnsi(@(native_methods).@(msg_type)_native_read_field_@(field.name)(handle));
 @[      else]@
-      return @(native_methods).@(module_name)_native_read_field_@(field.name)(handle);
+      return @(native_methods).@(msg_type)_native_read_field_@(field.name)(handle);
 @[      end if]@
     }
     set
     {
-      @(native_methods).@(module_name)_native_write_field_@(field.name)(handle, value);
+      @(native_methods).@(msg_type)_native_write_field_@(field.name)(handle, value);
     }
   }
 @[    elif field.type.is_array]@
 // TODO(samiam): Arrays of nested types are not supported
 @{
-nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
+nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.typename)
 }@
   public List<@(nested_type)> @(field.name)
   {
     get
     {
 @[        if field.type.array_size is None or field.type.is_upper_bound]@
-      int size = @(native_methods).@(module_name)_native_get_size_@(field.name)(handle);
+      int size = @(native_methods).@(msg_type)_native_get_size_@(field.name)(handle);
 @[        else]
       int size = @(field.type.array_size);
 @[        end if]
@@ -358,7 +369,7 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
 
       for (int index = 0; index < size; index++)
       {
-        IntPtr nestedMessageHandle =  @(native_methods).@(module_name)_native_get_handle_by_index_@(field.name)(handle, index);
+        IntPtr nestedMessageHandle =  @(native_methods).@(msg_type)_native_get_handle_by_index_@(field.name)(handle, index);
         listOfNestedTypes.Add(new @(nested_type)(nestedMessageHandle));
       }
 
@@ -368,9 +379,9 @@ nested_type = '%s.%s.%s' % (field.type.pkg_name, 'msg', field.type.type)
 
   public void @(field.name)_init(int size)
   {
-    @(native_methods).@(module_name)_native_init_nested_array_@(field.name)(handle, size);
+    @(native_methods).@(msg_type)_native_init_nested_array_@(field.name)(handle, size);
   /*
-    if(not @(native_methods).@(module_name)_native_init_nested_array_@(field.name)(handle, size))
+    if(not @(native_methods).@(msg_type)_native_init_nested_array_@(field.name)(handle, size))
     {
         Console.WriteLine("Failed to initialize array of nested types.");
     }

@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace rclcs
 {
@@ -25,7 +26,7 @@ namespace rclcs
         private rcl_allocator_t allocator;
         private bool disposed;
 
-        public WaitSet(IList<ISubscriptionBase> subscriptions = null)
+        public WaitSet(Context ctx, IList<ISubscriptionBase> subscriptions = null)
         {
             ulong numberOfSubscriptions;
 
@@ -43,6 +44,7 @@ namespace rclcs
             ulong numberOfTimers = 0;
             ulong numberOfClients = 0;
             ulong numberOfServices = 0;
+            ulong numberOfEvents = 0;
 
             allocator = NativeMethods.rcl_get_default_allocator();
             handle = NativeMethods.rcl_get_zero_initialized_wait_set();
@@ -54,6 +56,8 @@ namespace rclcs
                 numberOfTimers,
                 numberOfClients,
                 numberOfServices,
+                numberOfEvents,
+                ref ctx.handle,
                 allocator));
 
             Clear();

@@ -42,6 +42,7 @@ namespace rclcs
 
         public void TriggerCallback(IRclcsMessage message)
         {
+            message.ReadNativeMessage();
             callback((T)message);
         }
 

@@ -32,67 +32,52 @@ if(_typesupport_impls STREQUAL "")
   return()
 endif()
 
-set(_output_path
-  "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs/${PROJECT_NAME}")
-set(_generated_extension_files "")
+set(_output_path "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs/${PROJECT_NAME}")
 set(_generated_msg_cs_files "")
 set(_generated_msg_c_files "")
-set(_generated_srv_cs_files "")
-set(_generated_srv_c_files "")
-set(_generated_action_py_files "")
-set(_generated_action_c_files "")
+set(_generated_msg_c_ts_files "")
 
-# set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
+if(NOT WIN32)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
+  endif()
+endif()
 
-foreach(_typesupport_impl ${_typesupport_impls})
-  set(_generated_extension_${_typesupport_impl}_files "")
-endforeach()
+#message("The ABS_IDL_FILES are ${rosidl_generate_interfaces_ABS_IDL_FILES}")
 
-foreach(_idl_file ${rosidl_generate_interfaces_IDL_FILES})
+foreach(_idl_file ${rosidl_generate_interfaces_ABS_IDL_FILES})
   get_filename_component(_parent_folder "${_idl_file}" DIRECTORY)
   get_filename_component(_parent_folder "${_parent_folder}" NAME)
-  get_filename_component(_msg_name1 "${_idl_file}" NAME_WE)
+  get_filename_component(_msg_name "${_idl_file}" NAME_WE)
   get_filename_component(_ext "${_idl_file}" EXT)
-  string_camel_case_to_lower_case_underscore("${_msg_name1}" _module_name)
+  string_camel_case_to_lower_case_underscore("${_msg_name}" _module_name)
+
+  #message("Appending ${_output_path}/${_parent_folder}/_${_module_name}.cs")
 
   if(_parent_folder STREQUAL "msg")
     list(APPEND _generated_msg_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
+      "${_output_path}/${_parent_folder}/${_module_name}.cs"
     )
     list(APPEND _generated_msg_c_files
-      "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
+      "${_output_path}/${_parent_folder}/${_module_name}_s.c"
     )
+    foreach(_typesupport_impl ${_typesupport_impls})
+        list_append_unique(_generated_msg_c_ts_files
+          "${_output_path}/${_parent_folder}/${_module_name}.ep.${_typesupport_impl}.c"
+        )
+        list(APPEND _type_support_by_generated_msg_c_files "${_typesupport_impl}")
+    endforeach()
   elseif(_parent_folder STREQUAL "srv")
-    if("_${_module_name}_s.c" MATCHES "(.*)__response(.*)" OR "_${_module_name}_s.c" MATCHES "(.*)__request(.*)")
-      list(APPEND _generated_srv_c_files
-        "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
-      )
-    endif()
-    list(APPEND _generated_srv_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
-    )
   elseif(_parent_folder STREQUAL "action")
-    # C files generated for <msg>.msg, <service>_Request.msg and <service>_Response.msg but not <service>.srv
-    if(_ext STREQUAL ".msg")
-      list(APPEND _generated_action_c_files
-        "${_output_path}/${_parent_folder}/_${_module_name}_s.c"
-      )
-    endif()
-    list(APPEND _generated_action_cs_files
-      "${_output_path}/${_parent_folder}/_${_module_name}.cs"
-    )
   else()
     message(FATAL_ERROR "Interface file with unknown parent folder: ${_idl_file}")
   endif()
 endforeach()
 
-file(MAKE_DIRECTORY "${_output_path}")
-
-if(NOT _generated_msg_c_files STREQUAL "" OR NOT _generated_srv_c_files STREQUAL "" OR NOT _generated_action_c_files STREQUAL "")
-    foreach(_typesupport_impl ${_typesupport_impls})
-      list(APPEND _generated_extension_${_typesupport_impl}_files "${_output_path}/_${PROJECT_NAME}_s.ep.${_typesupport_impl}.c")
-      list(APPEND _generated_extension_files "${_generated_extension_${_typesupport_impl}_files}")
-    endforeach()
+if(_generated_msg_c_files STREQUAL "")
+  return()
 endif()
 
 set(_dependency_files "")
@@ -109,10 +94,13 @@ endforeach()
 set(target_dependencies
   "${rosidl_generator_cs_BIN}"
   ${rosidl_generator_cs_GENERATOR_FILES}
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg_support.c.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg_pkg_typesupport_entry_point.c.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_msg.cs.em"
-  "${rosidl_generator_cs_TEMPLATE_DIR}/_srv.cs.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl_typesupport.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/idl.cs.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/msg.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/msg_typesupport.c.em"
+  "${rosidl_generator_cs_TEMPLATE_DIR}/msg.cs.em"
+  ${rosidl_generate_interfaces_ABS_IDL_FILES}
   ${_dependency_files})
 foreach(dep ${target_dependencies})
   if(NOT EXISTS "${dep}")
@@ -124,112 +112,145 @@ set(generator_arguments_file "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs__a
 rosidl_write_generator_arguments(
   "${generator_arguments_file}"
   PACKAGE_NAME "${PROJECT_NAME}"
-  ROS_INTERFACE_FILES "${rosidl_generate_interfaces_IDL_FILES}"
+  IDL_TUPLES "${rosidl_generate_interfaces_IDL_TUPLES}"
   ROS_INTERFACE_DEPENDENCIES "${_dependencies}"
   OUTPUT_DIR "${_output_path}"
   TEMPLATE_DIR "${rosidl_generator_cs_TEMPLATE_DIR}"
   TARGET_DEPENDENCIES ${target_dependencies}
 )
 
-if(NOT _generated_msg_cs_files STREQUAL "")
-  list(GET _generated_msg_cs_files 0 _msg_file)
-  get_filename_component(_msg_package_dir1 "${_msg_file}" DIRECTORY)
-  get_filename_component(_msg_package_dir2 "${_msg_package_dir1}" NAME)
-endif()
+file(MAKE_DIRECTORY "${_output_path}")
 
-if(NOT _generated_srv_cs_files STREQUAL "")
-  list(GET _generated_srv_cs_files 0 _srv_file)
-  get_filename_component(_srv_package_dir1 "${_srv_file}" DIRECTORY)
-  get_filename_component(_srv_package_dir2 "${_srv_package_dir1}" NAME)
-endif()
-
-if(NOT _generated_action_cs_files STREQUAL "")
-  list(GET _generated_action_cs_files 0 _action_file)
-  get_filename_component(_action_package_dir1 "${_action_file}" DIRECTORY)
-  get_filename_component(_action_package_dir2 "${_action_package_dir1}" NAME)
-endif()
-
+message(STATUS "Generating C# code for ROS interfaces ${_generated_msg_cs_files}")
+add_custom_command(
+  OUTPUT ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
+  COMMAND ${PYTHON_EXECUTABLE} ${rosidl_generator_cs_BIN}
+  --generator-arguments-file "${generator_arguments_file}"
+  --typesupport-impls "${_typesupport_impls}"
+  DEPENDS ${target_dependencies}
+  COMMENT "Generating C# code for ROS interfaces"
+  VERBATIM
+)
 
 set(_target_suffix "__cs")
+if(TARGET ${rosidl_generate_interfaces_TARGET}${_target_suffix})
+  message(WARNING "Custom target ${rosidl_generate_interfaces_TARGET}${_target_suffix} already exists")
+else()
+  add_custom_target(
+    ${rosidl_generate_interfaces_TARGET}${_target_suffix}
+    DEPENDS
+    ${_generated_msg_cs_files}
+    ${_generated_msg_c_ts_files}
+    ${_generated_msg_c_files}
+  )
+endif()
 
-# move custom command into a subdirectory to avoid multiple invocations on Windows
-set(_subdir "${CMAKE_CURRENT_BINARY_DIR}/${rosidl_generate_interfaces_TARGET}${_target_suffix}")
-file(MAKE_DIRECTORY "${_subdir}")
-file(READ "${rosidl_generator_cs_DIR}/custom_command.cmake" _custom_command)
-file(WRITE "${_subdir}/CMakeLists.txt" "${_custom_command}")
-add_subdirectory("${_subdir}" ${rosidl_generate_interfaces_TARGET}${_target_suffix})
 set_property(
   SOURCE
-  ${_generated_extension_files} ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_srv_cs_files} ${_generated_srv_c_files} ${_generated_action_cs_files} ${_generated_action_c_files}
+  ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
   PROPERTY GENERATED 1)
 
-# TODO(samiam): add set_properties and set_lib_properties macros
+#rosidl_target_interfaces(${_target_name_lib}
+#    ${rosidl_generate_interfaces_TARGET} rosidl_typesupport_c)
 
-set(_target_name_lib "${rosidl_generate_interfaces_TARGET}__csharp_native")
-add_library(${_target_name_lib} SHARED
-  ${_generated_msg_c_files}
-  ${_generated_srv_c_files}
-  ${_generated_action_c_files}
-)
-add_dependencies(
-  ${_target_name_lib}
-  ${rosidl_generate_interfaces_TARGET}${_target_suffix}
-  ${rosidl_generate_interfaces_TARGET}__rosidl_typesupport_c
-)
+foreach(_generated_msg_c_ts_file ${_generated_msg_c_ts_files})
+  get_filename_component(_full_folder "${_generated_msg_c_ts_file}" DIRECTORY)
+  get_filename_component(_package_folder "${_full_folder}" DIRECTORY)
+  get_filename_component(_package_name "${_package_folder}" NAME)
+  get_filename_component(_parent_folder "${_full_folder}" NAME)
+  get_filename_component(_base_msg_name "${_generated_msg_c_ts_file}" NAME_WE)
+  get_filename_component(_full_extension_msg_name "${_generated_msg_c_ts_file}" EXT)
 
-target_link_libraries(
-  ${_target_name_lib}
-)
+  set(_msg_name "${_base_msg_name}${_full_extension_msg_name}")
 
-target_include_directories(${_target_name_lib}
-  PUBLIC
-  ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_c
-  ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs
-)
-
-rosidl_target_interfaces(${_target_name_lib}
-  ${rosidl_generate_interfaces_TARGET} rosidl_typesupport_c)
-
-foreach(_typesupport_impl ${_typesupport_impls})
+  list(FIND _generated_msg_c_ts_files ${_generated_msg_c_ts_file} _file_index)
+  list(GET _type_support_by_generated_msg_c_files ${_file_index} _typesupport_impl)
   find_package(${_typesupport_impl} REQUIRED)
+  set(_generated_msg_c_common_file "${_full_folder}/${_base_msg_name}.c")
 
-  set(_csext_suffix "__csext_native")
-  set(_target_name "${PROJECT_NAME}__${_typesupport_impl}${_csext_suffix}")
+  set(_dotnetext_suffix "__dotnetext")
+  set(_target_name "${_package_name}_${_base_msg_name}__${_typesupport_impl}")
+
+  string_camel_case_to_lower_case_underscore("${_module_name}" _header_name)
 
   add_library(${_target_name} SHARED
-    ${_generated_extension_${_typesupport_impl}_files}
+    "${_generated_msg_c_ts_file}"
+    "${_generated_msg_c_files}"
   )
-  add_dependencies(
-    ${_target_name}
-    ${rosidl_generate_interfaces_TARGET}${_target_suffix}
-    ${rosidl_generate_interfaces_TARGET}__rosidl_typesupport_c
+
+  set(_destination_dir "${_output_path}/${_parent_folder}")
+
+  set_target_properties(${_target_name} PROPERTIES
+    COMPILE_FLAGS "${_extension_compile_flags}"
+    LIBRARY_OUTPUT_DIRECTORY "${_destination_dir}"
+    RUNTIME_OUTPUT_DIRECTORY "${_destination_dir}"
+    OUTPUT_NAME ${_target_name}_native
+  )
+
+  set_target_properties(${_target_name} PROPERTIES
+    COMPILE_FLAGS "${_extension_compile_flags}"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${_destination_dir}"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${_destination_dir}"
+    OUTPUT_NAME ${_target_name}_native
+  )
+
+  set_target_properties(${_target_name} PROPERTIES
+    COMPILE_FLAGS "${_extension_compile_flags}"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${_destination_dir}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${_destination_dir}"
+    OUTPUT_NAME ${_target_name}_native
+  )
+
+  set_target_properties(${_target_name} PROPERTIES
+    COMPILE_FLAGS "${_extension_compile_flags}"
+    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${_destination_dir}"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${_destination_dir}"
+    OUTPUT_NAME ${_target_name}_native
+  )
+
+  set_target_properties(${_target_name} PROPERTIES
+    COMPILE_FLAGS "${_extension_compile_flags}"
+    LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${_destination_dir}"
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${_destination_dir}"
+    OUTPUT_NAME ${_target_name}_native
   )
 
   set(_extension_compile_flags "")
+  if(NOT WIN32)
+    set(_extension_compile_flags "-Wall -Wextra")
+  endif()
 
+  list(APPEND _extension_dependencies ${_target_name})
+
+  set(_extension_link_flags "")
+  if(NOT WIN32)
+    if(CMAKE_COMPILER_IS_GNUCXX)
+      set(_extension_link_flags "-Wl,--no-undefined")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      set(_extension_link_flags "-Wl,-undefined,error")
+    endif()
+  endif()
+
+  #message("Link libraries: ${PROJECT_NAME}__${_typesupport_impl}")
   target_link_libraries(
     ${_target_name}
-    ${_target_name_lib}
-    ${PythonExtra_LIBRARIES}
-    ${rosidl_generate_interfaces_TARGET}__${_typesupport_impl}
+    ${PROJECT_NAME}__${_typesupport_impl}
+    ${_extension_link_flags}
   )
+  rosidl_target_interfaces(${_target_name}
+    ${PROJECT_NAME} rosidl_typesupport_c)
 
   target_include_directories(${_target_name}
     PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_c
-    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_py
-    ${PythonExtra_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs
   )
-
-  rosidl_target_interfaces(${_target_name}
-    ${rosidl_generate_interfaces_TARGET} rosidl_typesupport_c)
 
   ament_target_dependencies(${_target_name}
     "rosidl_generator_c"
     "rosidl_typesupport_c"
     "rosidl_typesupport_interface"
   )
-
   foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
     ament_target_dependencies(${_target_name}
       ${_pkg_name}
@@ -241,16 +262,17 @@ foreach(_typesupport_impl ${_typesupport_impls})
   )
   ament_target_dependencies(${_target_name}
     "rosidl_generator_c"
-    "rosidl_generator_py"
-    "${rosidl_generate_interfaces_TARGET}__rosidl_generator_c"
+    "rosidl_generator_cs"
+    "${PROJECT_NAME}__rosidl_generator_c"
   )
 
- # NOTE(sam): Sourcing for Unity only seems to work if destination in bin, not lib
   if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
     install(TARGETS ${_target_name}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin)
+      ARCHIVE DESTINATION lib
+      LIBRARY DESTINATION lib
+      RUNTIME DESTINATION bin
+    )
+
   endif()
 
 endforeach()
@@ -291,10 +313,10 @@ foreach(_pkg_name ${rosidl_generate_interfaces_DEPENDENCY_PACKAGE_NAMES})
   endforeach()
 endforeach()
 
+#message("Assembly deps dll: ${_assembly_deps_dll}")
 add_dotnet_library(${PROJECT_NAME}_assembly
   SOURCES
   ${_generated_msg_cs_files}
-  ${_generated_srv_cs_files}
   INCLUDE_DLLS
   ${_assembly_deps_dll}
 )
@@ -302,13 +324,6 @@ add_dotnet_library(${PROJECT_NAME}_assembly
 add_dependencies("${PROJECT_NAME}_assembly" "${rosidl_generate_interfaces_TARGET}${_target_suffix}")
 
 if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
-  if(NOT _generated_msg_h_files STREQUAL "")
-    install(
-      FILES ${_generated_msg_h_files}
-      DESTINATION "include/${PROJECT_NAME}/msg"
-    )
-  endif()
-
   set(_install_assembly_dir "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}")
   if(NOT _generated_msg_cs_files STREQUAL "")
     list(GET _generated_msg_cs_files 0 _msg_file)

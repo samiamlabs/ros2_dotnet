@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Diagnostics;
 using ROS2.Interfaces;
 
 namespace rclcs
@@ -32,7 +33,6 @@ namespace rclcs
             nodeHandle = node.handle;
             handle = NativeMethods.rcl_get_zero_initialized_publisher();
             rcl_publisher_options_t publisherOptions = NativeMethods.rcl_publisher_get_default_options();
-
             //TODO(samiam): Figure out why System.Reflection is not available 
             //when building with colcon/xtool on ubuntu 18.04 and mono 4.5
 
@@ -41,14 +41,12 @@ namespace rclcs
 
             IRclcsMessage msg = new T();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
-
             Utils.CheckReturnEnum(NativeMethods.rcl_publisher_init(
                                     ref handle, 
                                     ref nodeHandle, 
                                     typeSupportHandle, 
                                     topic,
                                     ref publisherOptions));
-
         }
 
         ~Publisher()
@@ -85,6 +83,7 @@ namespace rclcs
 
         public void Publish(T msg)
         {
+            msg.WriteNativeMessage();
             Utils.CheckReturnEnum(NativeMethods.rcl_publish(ref handle, msg.Handle));
         }
     }

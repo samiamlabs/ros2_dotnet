@@ -6,7 +6,6 @@ find_package(ament_cmake REQUIRED)
 find_package(rcldotnet REQUIRED)
 find_package(rcldotnet_common REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(rcldotnet REQUIRED)
 find_package(dotnet_cmake_module REQUIRED)
 find_package(rosidl_generator_cs REQUIRED)
 
@@ -20,7 +19,7 @@ set(_assemblies_dep_dlls
     ${rosidl_generator_ASSEMBLIES_DLL}
 )
 
-message("Included assemblies: ${_assemblies_dep_dlls}")
+message("Included assemblies for examples: ${_assemblies_dep_dlls}")
 
 add_dotnet_executable(rcldotnet_talker
   RCLDotnetTalker.cs

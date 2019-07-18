@@ -19,8 +19,10 @@
 # a different CMake subdirectory, and this command is invoked after an
 # add_subdirectory() call.
 
+message("Called custom command ${_generated_msg_c_ts_files}")
+
 add_custom_command(
-  OUTPUT ${_generated_extension_files} ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_srv_cs_files} ${_generated_srv_c_files} ${_generated_action_cs_files} ${_generated_action_c_files}
+  OUTPUT ${_generated_msg_cs_files} ${_generated_msg_c_files} ${_generated_msg_c_ts_files}
   COMMAND ${PYTHON_EXECUTABLE} ${rosidl_generator_cs_BIN}
   --generator-arguments-file "${generator_arguments_file}"
   --typesupport-impls "${_typesupport_impls}"
@@ -33,14 +35,10 @@ if(TARGET ${rosidl_generate_interfaces_TARGET}${_target_suffix})
   message(WARNING "Custom target ${rosidl_generate_interfaces_TARGET}${_target_suffix} already exists")
 else()
   add_custom_target(
-    ${rosidl_generate_interfaces_TARGET}${_target_suffix} ALL # TODO(samiam): remove ALL
+    ${rosidl_generate_interfaces_TARGET}${_target_suffix}
     DEPENDS
-    ${_generated_extension_files}
     ${_generated_msg_cs_files}
     ${_generated_msg_c_files}
-    ${_generated_srv_cs_files}
-    ${_generated_srv_c_files}
-    ${_generated_action_cs_files}
-    ${_generated_action_c_files}
+    ${_generated_msg_c_ts_files}
   )
 endif()

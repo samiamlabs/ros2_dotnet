@@ -12,7 +12,7 @@ namespace ConsoleApplication
             INode node = Rclcs.CreateNode("listener", ctx);
 
             ISubscription<std_msgs.msg.String> chatter_sub = node.CreateSubscription<std_msgs.msg.String>(
-              "chatter", msg => Console.WriteLine("I heard: [" + msg.data + "]"));
+              "chatter", msg => Console.WriteLine("I heard: [" + msg.Data + "]"));
                 
             Rclcs.Spin(node, ctx);
             Rclcs.Shutdown(ctx);
