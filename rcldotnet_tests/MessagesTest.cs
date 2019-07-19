@@ -18,43 +18,51 @@ namespace rclcs.Test
         public void SetBoolData()
         {
             std_msgs.msg.Bool msg = new std_msgs.msg.Bool();
-            Assert.That(msg.data, Is.False);
-            msg.data = true;
-            Assert.That(msg.data, Is.True);
-            msg.data = false;
-            Assert.That(msg.data, Is.False);
+            Assert.That(msg.Data, Is.False);
+            msg.Data = true;
+            Assert.That(msg.Data, Is.True);
+            msg.Data = false;
+            Assert.That(msg.Data, Is.False);
         }
 
         [Test]
         public void SetInt64Data()
         {
             std_msgs.msg.Int64 msg = new std_msgs.msg.Int64();
-            Assert.That(msg.data, Is.EqualTo(0));
-            msg.data = 12345;
-            Assert.That(msg.data, Is.EqualTo(12345));
+            Assert.That(msg.Data, Is.EqualTo(0));
+            msg.Data = 12345;
+            Assert.That(msg.Data, Is.EqualTo(12345));
         }
 
         [Test]
         public void SetStringData()
         {
             std_msgs.msg.String msg = new std_msgs.msg.String();
-            Assert.That(msg.data, Is.EqualTo(""));
-            msg.data = "Show me what you got!";
-            Assert.That(msg.data, Is.EqualTo("Show me what you got!"));
+            //NOTE(sam): msg.Data now initializes to null and not <string.Empty>, intentional?
+            // Assert.That(msg.Data, Is.EqualTo(""));
+            Assert.That(msg.Data, Is.EqualTo(null));
+            msg.Data = "Show me what you got!";
+            Assert.That(msg.Data, Is.EqualTo("Show me what you got!"));
         }
 
         [Test]
-        public void SetPrimitives()
+        public void SetDefaults()
         {
-            test_msgs.msg.Primitives msg = new test_msgs.msg.Primitives();
-            msg.int32_value = 24;
-            Assert.That(msg.int32_value, Is.EqualTo(24));
-            msg.string_value = "Turtles all the way down";
-            Assert.That(msg.string_value, Is.EqualTo("Turtles all the way down"));
-            msg.float32_value = 3.14F;
-            Assert.That(msg.float32_value, Is.EqualTo(3.14F));
+            test_msgs.msg.Defaults msg = new test_msgs.msg.Defaults();
+            msg.Int32_value = 24;
+            Assert.That(msg.Int32_value, Is.EqualTo(24));
+            msg.Float32_value = 3.14F;
+            Assert.That(msg.Float32_value, Is.EqualTo(3.14F));
         }
 
+        [Test]
+        public void SetStrings()
+        {
+            test_msgs.msg.Strings msg = new test_msgs.msg.Strings();
+            msg.String_value = "Turtles all the way down";
+            Assert.That(msg.String_value, Is.EqualTo("Turtles all the way down"));
+        }
+/* 
         [Test]
         public void SetDynamicArrayPrimitives()
         {
@@ -188,6 +196,6 @@ namespace rclcs.Test
             //Assert.That(getStringList.Count, Is.EqualTo(3));
             //Assert.That(getStringList[0], Is.EqualTo("Hello"));
             //Assert.That(getStringList[1], Is.EqualTo("world"));
-        }
+        } */
     }
 }

@@ -34,7 +34,7 @@ namespace rclcs.Test
             subscriptionNode.Dispose();
             Rclcs.Shutdown(publisherContext);
         }
-
+/* 
         [Test]
         public void SubscriptionTriggerCallback()
         {
@@ -50,6 +50,6 @@ namespace rclcs.Test
 
             Assert.That(callbackTriggered, Is.True);
         }
-
+ */
     }
 }

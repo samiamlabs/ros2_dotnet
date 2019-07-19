@@ -44,7 +44,7 @@ endfunction()
 
 add_library(
   rclcs_native SHARED
-  src/_rclcs.c
+  _rclcs.c
 )
 ament_target_dependencies(rclcs_native
   "builtin_interfaces"
@@ -61,26 +61,27 @@ configure_csharp_c_extension_library(rclcs_native)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
 set(CS_SOURCES
-  src/dotnet/Constants.cs
-  src/dotnet/Context.cs
-  src/dotnet/Clock.cs
-  src/dotnet/Enums.cs
-  src/dotnet/Exceptions.cs
-  src/dotnet/INode.cs
-  src/dotnet/IPublisher.cs
-  src/dotnet/IPublisherBase.cs
-  src/dotnet/ISubscription.cs
-  src/dotnet/ISubscriptionBase.cs
-  src/dotnet/MarshallingHelpers.cs
-  src/dotnet/NativeMethods.cs
-  src/dotnet/NativeTypes.cs
-  src/dotnet/Node.cs
-  src/dotnet/Publisher.cs
-  src/dotnet/QualityOfServiceProfile.cs
-  src/dotnet/Rclcs.cs
-  src/dotnet/Subscription.cs
-  src/dotnet/Utils.cs
-  src/dotnet/WaitSet.cs
+  Constants.cs
+  Context.cs
+  Clock.cs
+  Enums.cs
+  Exceptions.cs
+  INode.cs
+  IPublisher.cs
+  IPublisherBase.cs
+  ISubscription.cs
+  ISubscriptionBase.cs
+  MarshallingHelpers.cs
+  NativeMethods.cs
+  NativeTypes.cs
+  Node.cs
+  Publisher.cs
+  QualityOfServiceProfile.cs
+  Rclcs.cs
+  Subscription.cs
+  Utils.cs
+  WaitSet.cs
+  Properties/AssemblyInfo.cs
 )
 
 # TODO: automate assembly_dep list based on package dependencies?

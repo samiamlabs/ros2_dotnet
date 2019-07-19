@@ -59,7 +59,7 @@ namespace rclcs.Test
         public void CreateSubscription()
         {
             Subscription<std_msgs.msg.Bool> subscription = node.CreateSubscription<std_msgs.msg.Bool>(
-                "/subscription_topic", msg => Console.WriteLine("I heard: [" + msg.data + "]"));
+                "/subscription_topic", msg => Console.WriteLine("I heard: [" + msg.Data + "]"));
             subscription.Dispose();
 
             using (subscription = node.CreateSubscription<std_msgs.msg.Bool>("test_topic", msg => Console.WriteLine("Got message")))

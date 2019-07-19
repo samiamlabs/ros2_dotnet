@@ -36,13 +36,13 @@ namespace rclcs.Test
         [Test]
         public void Create()
         {
-            WaitSet waitSet = new WaitSet();
+            WaitSet waitSet = new WaitSet(context, node.Subscriptions);
         }
 
         [Test]
         public void WaitForReadySubscriptionCallback()
         {
-            WaitSet waitSet = new WaitSet(node.Subscriptions);
+            WaitSet waitSet = new WaitSet(context, node.Subscriptions);
             waitSet.Wait(0.1);
         }
     }
