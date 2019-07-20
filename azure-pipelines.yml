@@ -1,7 +1,8 @@
 trigger:
   branches:
     include:
-    - master
+    - dashing
+    - automatic-testing
   paths:
     exclude:
     - README.md
