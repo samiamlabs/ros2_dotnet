@@ -5,6 +5,13 @@ parameters:
 
 steps:
 - script: |
+    choco install -y ^
+      curl
+    curl -o ros2-dashing.zip https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+    dir
+    unzip ros2_dashing.zip
+    rm ros2_dashing.zip
+    dir
     python -m pip install -U ^
       setuptools ^
       pip
@@ -33,14 +40,7 @@ steps:
       flake8-quotes ^
       pep8 ^
       pydocstyle
-    choco install -y ^
-      cppcheck
-      wget
-    wget https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip -O ros2-dashing.zip
-    dir
-    unzip ros2_dashing.zip
-    rm ros2_dashing.zip
-    dir
+    
   displayName: 'Install dependencies'
 
 - ${{ if eq(parameters.platform, 'desktop') }}:
