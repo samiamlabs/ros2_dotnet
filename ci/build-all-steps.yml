@@ -9,7 +9,7 @@ steps:
       curl
     md \dev
     cd \dev
-    curl -o ros2-dashing.zip https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+    curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
     dir
     unzip ros2_dashing.zip
     rm ros2_dashing.zip
