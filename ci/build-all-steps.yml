@@ -10,10 +10,8 @@ steps:
     md \dev
     cd \dev
     curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
-    dir
     unzip ros2_dashing.zip
     rm ros2_dashing.zip
-    dir
     python -m pip install -U ^
       setuptools ^
       pip
@@ -56,28 +54,12 @@ steps:
       rd /s /q ros2_dotnet
       xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
       cd \dev\ament
-      call install\local_setup.bat
-      cd \dev\ros2
-      vcs branch
+      call \dev\ros2-dashing\local_setup.bat
+      cd \dev\ros2_dotnet_ws
       colcon build
     displayName: 'Build ros2-dotnet for Desktop'
   - script: |
-      set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-      cd \dev\ament
-      call install\local_setup.bat
-      cd \dev\ros2
-      vcs branch
-      colcon test ^
-        --packages-select ^
-          rcldotnet ^
-          rcldotnet_common ^
-          rcldotnet_examples ^
-          rosidl_generator_dotnet ^
-        --cmake-args ^
-          -G "${{ parameters.generator }}" ^
-          -A "${{ parameters.arch }}" ^
-          -DBUILD_TESTING=OFF ^
-          -DTHIRDPARTY=ON ^
-          -DINSTALL_EXAMPLES=OFF
-      colcon test-result --verbose
+      call \dev\ros2_dotnet_ws\install\setup.bat
+      cd \dev\ros2_dotnet_ws\src\ros2_dotnet\ros2_dotnet\rcldotnet_tests
+      dotnet test
     displayName: 'Test ros2-dotnet for Desktop'
