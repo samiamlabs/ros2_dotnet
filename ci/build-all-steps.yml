@@ -53,10 +53,18 @@ steps:
       cd \dev\ros2_dotnet_ws\src\ros2_dotnet
       rd /s /q ros2_dotnet
       xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
-      cd \dev\ament
       call \dev\ros2-dashing\local_setup.bat
       cd \dev\ros2_dotnet_ws
-      colcon build
+      colcon build ^
+        --cmake-args ^
+          -G "${{ parameters.generator }}" ^
+          -A "${{ parameters.arch }}" ^
+          -DBUILD_TESTING=OFF ^
+          -DCMAKE_SYSTEM_NAME=WindowsStore ^
+          -DCMAKE_SYSTEM_VERSION=10.0.14393 ^
+          -DTHIRDPARTY=ON ^
+          -DINSTALL_EXAMPLES=OFF
+
     displayName: 'Build ros2-dotnet for Desktop'
   - script: |
       call \dev\ros2_dotnet_ws\install\setup.bat
