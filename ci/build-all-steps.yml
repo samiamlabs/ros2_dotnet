@@ -55,6 +55,7 @@ steps:
       xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
       call \dev\ros2-dashing\local_setup.bat
       cd \dev\ros2_dotnet_ws
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
       colcon build ^
         --cmake-args ^
           -G "${{ parameters.generator }}" ^
