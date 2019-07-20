@@ -35,13 +35,17 @@ steps:
       pydocstyle
     choco install -y ^
       cppcheck
+      wget
+    wget https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip -O ros2-dashing.zip
+    dir
+    unzip ros2_dashing.zip
+    rm ros2_dashing.zip
+    dir
   displayName: 'Install dependencies'
 
 - ${{ if eq(parameters.platform, 'desktop') }}:
   - script: |
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-      wget https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip -O ros2-dashing.zip
-      dir
       md \dev\ros2_dotnet_ws\src
       cd \dev\ros2_dotnet_ws
       copy $(Build.Repository.LocalPath)\ros2_dotnet_dashing.repos \dev\ros2\ros2_dotnet_dashing.repos
