@@ -11,9 +11,7 @@ image:
 environment:
   PYTHON3: "c:\\Python37"
   
-clone_folder: 
-    - c:\proj\ros2_dotnet
-    - /proj/ros2_dotnet
+clone_folder: c:\proj\ros2_dotnet
 
 before_build:
   - cmd: >- 
