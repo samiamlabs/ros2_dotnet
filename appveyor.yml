@@ -70,12 +70,6 @@ before_build:
 
         sudo apt udpate
 
-        sudo apt install --no-install-recommends -y \
-            libasio-dev \
-            libtinyxml2-dev
-
-        sudo pip install -U colcon-common-extensions
-
   - cmd: >- 
         cd c:\proj
 
