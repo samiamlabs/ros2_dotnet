@@ -14,46 +14,76 @@ clone_folder: c:\proj\ros2_dotnet
 before_build:
   - cmd: >- 
         python -m pip install -U vcstool
+
         cd c:\
+
         md download
+
         cd download
+
         choco install -y wget cmake
+
         "SET PATH=C:\\Program Files\\CMake\\bin;%PATH%"
+
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/asio.1.12.1.nupkg
+
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/eigen.3.3.4.nupkg
+
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2017-04-04-1/tinyxml-usestl.2.6.2.nupkg
+
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/tinyxml2.6.0.0.nupkg
+
         choco install -y -s c:\download\ asio eigen tinyxml-usestl tinyxml2
+
         choco install -y patch curl cppcheck
+
         setx -m OPENSSL_CONF C:\OpenSSL-Win64\bin\openssl.cfg
+
         set PATH=C:\OpenSSL-Win64\bin;%PATH%
+
         setx AMENT_PYTHON_EXECUTABLE "c:\Python37"
+
         refreshenv
+
         "SET PATH=%PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%"
+
         python -m pip install -U catkin_pkg EmPy lxml numpy pyparsing pyyaml setuptools colcon-common-extensions pip git+https://github.com/lark-parser/lark.git@0.7d
+
         python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
+
+  - cmd: >- 
         cd c:\proj
+
         curl -o ros2_dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+
         unzip ros2_dashing.zip
+
         rm ros2_dashing.zip
-        dir
+
         cd c:\proj
+
         md dotnet_ws\src
-        copy c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos  c:\proj\dotnet_ws\ros2_dotnet_dashing.repos 
+
         cd dotnet_ws
-        dir
-        type ros2_dotnet_dashing.repos
-        vcs import src < ros2_dotnet_dashing.repos
+
+        vcs import c:\proj\dotnet_ws\src < c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos
 
  
 build_script:  
   - cmd: >-
         "SET PATH=%PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%"
+
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
+
         cd  c:\proj\dotnet_ws
+
         rd /s /q src\ros2_dotnet\ros2_dotnet
+
         xcopy /e /i c:\proj\ros2_dotnet src\ros2_dotnet\ros2_dotnet
+
+  - cmd: >-
         python --version
+
         call "C:\proj\ros2-windows\local_setup.bat"
-        colcon build & exit 0
+
         colcon build
