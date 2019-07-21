@@ -18,7 +18,7 @@ before_build:
         md download
         cd download
         choco install -y wget cmake
-        "SET PATH=C:\\Program Files\\CMake\\bin;%PATH%"
+        set PATH=C:\\Program Files\\CMake\\bin;%PATH%
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/asio.1.12.1.nupkg
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/eigen.3.3.4.nupkg
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2017-04-04-1/tinyxml-usestl.2.6.2.nupkg
