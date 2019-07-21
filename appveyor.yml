@@ -56,19 +56,22 @@ before_build:
         update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
         export LANG=en_US.UTF-8
         
-        sudo apt update && sudo apt install curl gnupg2 lsb-release tree
+        sudo apt update && sudo apt install curl gnupg2 lsb-release tree python3-pip
         
         curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 
         sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
 
-        sudo apt install -y python-rosdep
+        sudo apt install -y python-rosdep python
 
         sudo rosdep init
 
+        sudo pip3 install
+
         rosdep update
 
-        sudo apt udpate
+        sudo pip3 install colcon-common-extensions
+
 
   - cmd: >- 
         cd c:\proj
