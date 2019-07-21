@@ -50,11 +50,7 @@ before_build:
         python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
 
   - sh: >-
-        virtualenv .venv
-        
-        source .venv/bin/activate 
-
-        python -m pip install -U vcstool
+        sudo python -m pip install -U vcstool
 
         locale-gen en_US en_US.UTF-8
         update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
@@ -66,7 +62,7 @@ before_build:
 
         sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
 
-        apt install -y python-rosdep
+        sudo apt install -y python-rosdep
 
         rosdep init
 
@@ -91,7 +87,7 @@ before_build:
         vcs import c:\proj\dotnet_ws\src < c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos
 
   - sh: >-
-        mkdir -p proj/dotnet_ws/src
+        mkdir -p /proj/dotnet_ws/src
 
         cd /proj
 
