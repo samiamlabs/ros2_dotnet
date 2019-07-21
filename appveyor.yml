@@ -72,9 +72,9 @@ before_build:
 
         sudo apt install --no-install-recommends -y \
             libasio-dev \
-            libtinyxml2-dev \
+            libtinyxml2-dev
 
-        sudo python -m pip install -U catkin_pkg colcon-common-extensions
+        sudo python -m pip install catkin_pkg colcon-common-extensions
 
 
   - cmd: >- 
