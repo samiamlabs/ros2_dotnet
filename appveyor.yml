@@ -35,6 +35,8 @@ before_build:
 
         curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
         
+        dir
+
         unzip ros2_dashing.zip
         
         rm ros2_dashing.zip
@@ -49,7 +51,11 @@ build_script:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
         
         cd  c:\proj\dotnet_ws
-        
+
+        rd /s /q src\ros2_dotnet\ros2_dotnet
+
+        xcopy /e /i c:\proj\ros2_dotnet src\ros2_dotnet\ros2_dotnet
+
         python --version
         
         call "C:\proj\ros2_dashing\local_setup.bat"
