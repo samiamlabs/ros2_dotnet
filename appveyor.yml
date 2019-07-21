@@ -130,6 +130,6 @@ build_script:
 
         tree /home/appveyor/projects
 
-        cp -r /home/appveyor/projects/ros2_dotnet /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
+        cp -r /home/appveyor/projects/ros2-dotnet /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
         colcon build
