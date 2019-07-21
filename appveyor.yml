@@ -5,7 +5,7 @@ branches:
     - appveyor
 
 image: 
-    - Ubuntu 1804
+    - Ubuntu1804
     - Visual Studio 2017
 
 environment:
