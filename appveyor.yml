@@ -70,9 +70,24 @@ before_build:
 
         rosdep update
 
-        sudo apt install python3-pip
-
-        sudo python3-pip install colcon-common-extensions
+        sudo apt-get update && apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            python3-colcon-common-extensions \
+            python3-pip \
+            python3-rosdep \
+            python-vcstool \
+            wget \
+            && python3 -m pip install -U \
+            argcomplete \
+            pytest-repeat \
+            pytest-rerunfailures \
+            pytest \
+            pytest-cov \
+            pytest-watch \
+            pytest-runner \
+            setuptools \
 
 
   - cmd: >- 
