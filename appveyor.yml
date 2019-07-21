@@ -5,8 +5,8 @@ branches:
     - appveyor
 
 image: 
-    - Visual Studio 2017
     - Ubuntu 1804
+    - Visual Studio 2017
 
 environment:
   PYTHON3: "c:\\Python37"
