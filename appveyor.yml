@@ -68,6 +68,8 @@ before_build:
 
         rosdep update
 
+        sudo apt udpate
+        
         sudo apt install --no-install-recommends -y \
             libasio-dev \
             libtinyxml2-dev \
@@ -137,4 +139,4 @@ build_script:
 
         sudo cp -r /home/appveyor/projects/ros2-dotnet /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        colcon build
+        sudo colcon build
