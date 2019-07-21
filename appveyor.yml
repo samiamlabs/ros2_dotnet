@@ -31,7 +31,7 @@ before_build:
   - python -m pip install -U catkin_pkg EmPy pyparsing pyyaml setuptools colcon-common-extensions pip vcstool git+https://github.com/lark-parser/lark.git@0.7d
   - python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
   - cd c:\proj
-  - curl -o ros2-dashing.zip -fsSL https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+  - curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
   - unzip ros2_dashing.zip
   - rm ros2_dashing.zip
   - md dotnet_ws\src
