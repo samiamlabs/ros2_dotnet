@@ -33,9 +33,7 @@ before_build:
   - cmd: >- 
         cd c:\proj
 
-        curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
-        
-        dir
+        curl -o ros2_dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
 
         unzip ros2_dashing.zip
         
