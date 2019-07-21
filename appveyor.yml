@@ -62,18 +62,19 @@ before_build:
 
         sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
 
-        sudo apt install -y python-rosdep python-catkin-pkg 
+        sudo apt install -y python-rosdep
 
         sudo rosdep init
 
         rosdep update
 
         sudo apt udpate
-        
+
         sudo apt install --no-install-recommends -y \
             libasio-dev \
             libtinyxml2-dev \
-            python3-colcon-common-extensions
+
+        sudo python -m pip install -U catkin_pkg colcon-common-extensions
 
 
   - cmd: >- 
