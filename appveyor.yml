@@ -13,21 +13,7 @@ clone_folder: c:\proj\ros2_dotnet
 
 before_build:
   - python -m pip install -U vcstool
-  - cmd: >-
-        cd c:\proj
-
-        md dotnet_ws\src
-
-        copy c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos  c:\proj\dotnet_ws\ros2_dotnet_dashing.repos 
-        
-        cd dotnet_ws
-
-        dir
-
-        type ros2_dotnet_dashing.repos
-        
-        vcs import src < ros2_dotnet_dashing.repos
-
+  
   - cd c:\
   - md download
   - cd download
@@ -54,6 +40,24 @@ before_build:
         unzip ros2_dashing.zip
         
         rm ros2_dashing.zip
+        
+        dir
+
+  - cmd: >-
+        cd c:\proj
+
+        md dotnet_ws\src
+
+        copy c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos  c:\proj\dotnet_ws\ros2_dotnet_dashing.repos 
+        
+        cd dotnet_ws
+
+        dir
+
+        type ros2_dotnet_dashing.repos
+        
+        vcs import src < ros2_dotnet_dashing.repos
+
  
 build_script:  
   - "SET PATH=%PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%"
@@ -68,6 +72,6 @@ build_script:
 
         python --version
         
-        call "C:\proj\ros2_dashing\local_setup.bat"
+        call "C:\proj\ros2-windows\local_setup.bat"
         
         colcon build
