@@ -35,9 +35,15 @@ before_build:
 
         md dotnet_ws\src
 
-        dir
+        copy c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos  c:\proj\dotnet_ws\ros2_dotnet_dashing.repos 
         
-        vcs import c:\proj\dotnet_ws\src < c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos
+        cd dotnet_ws
+
+        dir
+
+        type ros2_dotnet_dashing.repos
+        
+        vcs import src < ros2_dotnet_dashing.repos
   - cmd: >- 
         cd c:\proj
 
