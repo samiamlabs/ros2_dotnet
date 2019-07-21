@@ -87,7 +87,7 @@ before_build:
         vcs import c:\proj\dotnet_ws\src < c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos
 
   - sh: >-
-        mkdir -p /proj/dotnet_ws/src
+        sudo mkdir -p /proj/dotnet_ws/src
 
         cd /proj
 
