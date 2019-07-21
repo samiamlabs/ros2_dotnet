@@ -74,6 +74,6 @@ build_script:
         
         call "C:\proj\ros2-windows\local_setup.bat"
         
-        colcon build
+        colcon build && exit 0
 
         colcon build
