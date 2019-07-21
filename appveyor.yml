@@ -4,16 +4,19 @@ branches:
   only:
     - appveyor
 
-image: Visual Studio 2017
+image: 
+    - Visual Studio 2017
+    - Ubuntu 1804
 
 environment:
   PYTHON3: "c:\\Python37"
   
-clone_folder: c:\proj\ros2_dotnet
+clone_folder: 
+    - c:\proj\ros2_dotnet
+    - /proj/ros2_dotnet
 
 before_build:
   - cmd: >- 
-        python -m pip install -U vcstool
         
         cd c:\
 
@@ -50,6 +53,25 @@ before_build:
         python -m pip install -U catkin_pkg EmPy lxml numpy pyparsing pyyaml setuptools colcon-common-extensions pip git+https://github.com/lark-parser/lark.git@0.7d
 
         python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
+  - sh: >-
+        python -m pip install -U vcstool
+
+        locale-gen en_US en_US.UTF-8
+        update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+        export LANG=en_US.UTF-8
+        
+        sudo apt update && sudo apt install curl gnupg2 lsb-release
+        
+        curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+
+        sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
+
+        apt install -y python-rosdep
+
+        rosdep init
+
+        rosdep update
+
 
   - cmd: >- 
         cd c:\proj
@@ -68,6 +90,19 @@ before_build:
 
         vcs import c:\proj\dotnet_ws\src < c:\proj\ros2_dotnet\ros2_dotnet_dashing.repos
 
+  - sh: >-
+        cd /proj
+
+        wget https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-linux-bionic-amd64.tar.bz2
+
+        tar xf /proj/ros2-dashing-20190614-linux-bionic-amd64.tar.bz2
+
+        ls
+
+        rosdep install --from-paths ros2-linux/share --ignore-src --rosdistro dashing -y --skip-keys "console_bridge fastcdr fastrtps libopensplice67 libopensplice69 osrf_testing_tools_cpp poco_vendor rmw_connext_cpp rosidl_typesupport_connext_c rosidl_typesupport_connext_cpp rti-connext-dds-5.3.1 tinyxml_vendor tinyxml2_vendor urdfdom urdfdom_headers"
+
+        vcs import /proj/dotnet_ws/src < /proj/ros2_dotnet/ros2_dotnet_dashing.repos
+
  
 build_script:  
   - cmd: >-
@@ -85,5 +120,16 @@ build_script:
         python --version
 
         call "C:\proj\ros2-windows\local_setup.bat"
-        
+
+        colcon build
+
+  - sh: >-
+        source /proj/ros2-linux/local_setup.sh
+
+        cd /proj/dotnet_ws
+
+        rm -r src/ros2_dotnet/ros2_dotnet
+
+        cp -r /proj/ros2_dotnet /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
+
         colcon build
