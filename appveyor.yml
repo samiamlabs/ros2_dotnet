@@ -13,7 +13,6 @@ environment:
   
 before_build:
   - cmd: >- 
-        
         cd c:\
 
         md download
@@ -51,6 +50,10 @@ before_build:
         python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
 
   - sh: >-
+        virtualenv .venv
+        
+        source .venv/bin/activate 
+
         python -m pip install -U vcstool
 
         locale-gen en_US en_US.UTF-8
