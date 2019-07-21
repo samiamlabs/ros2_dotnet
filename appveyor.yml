@@ -23,7 +23,7 @@ before_build:
 
         choco install -y wget cmake
 
-        setx PATH C:\\Program Files\\CMake\\bin;%PATH%
+        setx PATH C:\Program Files\CMake\bin;C:\OpenSSL-Win64\bin;%PATH%
 
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/asio.1.12.1.nupkg
 
@@ -39,8 +39,7 @@ before_build:
 
         setx -m OPENSSL_CONF C:\OpenSSL-Win64\bin\openssl.cfg
 
-        setx PATH C:\OpenSSL-Win64\bin;%PATH%
-
+  - cmd: >-
         setx AMENT_PYTHON_EXECUTABLE "c:\Python37"
 
         refreshenv
