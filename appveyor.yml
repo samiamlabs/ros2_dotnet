@@ -44,7 +44,7 @@ before_build:
         vcs import dotnet_ws\src < ros2_dotnet\ros2_dotnet_dashing.repos
 
 build_script:  
-  -"SET PATH=%PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%"
+  - "SET PATH=%PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%"
   - cmd: >-
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
         
