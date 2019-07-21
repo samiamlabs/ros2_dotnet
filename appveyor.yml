@@ -23,7 +23,7 @@ before_build:
 
         choco install -y wget cmake
 
-        setx PATH C:\Program Files\CMake\bin;C:\OpenSSL-Win64\bin;%PATH%
+        setx PATH C:\Program Files\CMake\bin;C:\OpenSSL-Win64\bin;%PYTHON3%;%PYTHON3%\bin;%PYTHON3%\Scripts;%PATH%
 
         appveyor DownloadFile https://github.com/ros2/choco-packages/releases/download/2018-06-12-1/asio.1.12.1.nupkg
 
@@ -43,8 +43,6 @@ before_build:
         setx AMENT_PYTHON_EXECUTABLE "c:\Python37"
 
         refreshenv
-
-        setx PATH %PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%
 
         python -m pip install -U catkin_pkg EmPy lxml numpy pyparsing pyyaml setuptools colcon-common-extensions pip git+https://github.com/lark-parser/lark.git@0.7d
 
@@ -70,8 +68,6 @@ before_build:
  
 build_script:  
   - cmd: >-
-        setx PATH %PYTHON3%;%PYTHON3%\\bin;%PYTHON3%\\Scripts;%PATH%
-
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
 
         cd  c:\proj\dotnet_ws
