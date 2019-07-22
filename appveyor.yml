@@ -137,6 +137,6 @@ build_script:
 
         tree /proj/dotnet_ws/src
 
-        sudo chmod -R ug+rw /proj/dotnet_ws
+        sudo chmod -R 755 /proj
 
         colcon build
