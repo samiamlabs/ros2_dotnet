@@ -53,8 +53,14 @@ before_build:
         sudo python -m pip install -U vcstool
 
         locale-gen en_US en_US.UTF-8
+
         update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+        
         export LANG=en_US.UTF-8
+
+        export PYTHON_INCLUDE_DIRS=/usr/include/python3.6 
+
+        export PYTHON_LIBRARIES=/usr/lib/python3.6/config/libpython3.6.so
         
         sudo apt update && sudo apt install curl gnupg2 lsb-release tree
         
@@ -104,7 +110,7 @@ before_build:
 
         sudo apt-get update && sudo apt-get install --only-upgrade python-catkin-pkg
 
-        sudo apt-get install python3-dev python3-pip python3-tk python3-lxml python3-six python-dev -y
+        sudo apt-get install python3-dev python3-pip python3-tk python3-lxml python3-six
         _
         sudo rosdep install --from-paths ros2-linux/share --ignore-src --rosdistro dashing -y --skip-keys "console_bridge fastcdr fastrtps libopensplice67 libopensplice69 osrf_testing_tools_cpp poco_vendor rmw_connext_cpp rosidl_typesupport_connext_c rosidl_typesupport_connext_cpp rti-connext-dds-5.3.1 tinyxml_vendor tinyxml2_vendor urdfdom urdfdom_headers"
 
@@ -137,4 +143,4 @@ build_script:
 
         cp -R /home/appveyor/projects/ros2-dotnet/ /home/appveyor/projects/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        /bin/bash -c "alias python=python3; cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
+        /bin/bash -c "cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
