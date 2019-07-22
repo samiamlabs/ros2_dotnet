@@ -58,10 +58,6 @@ before_build:
         
         export LANG=en_US.UTF-8
 
-        export PYTHON_INCLUDE_DIRS=/usr/include/python3.6 
-
-        export PYTHON_LIBRARIES=/usr/lib/python3.6/config/libpython3.6.so
-        
         sudo apt update && sudo apt install curl gnupg2 lsb-release tree
         
         curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
@@ -142,5 +138,9 @@ build_script:
         rm -r src/ros2_dotnet/ros2_dotnet
 
         cp -R /home/appveyor/projects/ros2-dotnet/ /home/appveyor/projects/dotnet_ws/src/ros2_dotnet/ros2_dotnet
+
+        alias python=python3
+
+        python --version
 
         /bin/bash -c "cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
