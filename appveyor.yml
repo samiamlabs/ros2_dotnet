@@ -133,8 +133,8 @@ build_script:
 
         rm -r src/ros2_dotnet/ros2_dotnet
 
-        tree /home/appveyor/projects
+        sudo cp -R /home/appveyor/projects/ros2-dotnet/ /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        sudo cp -r /home/appveyor/projects/ros2-dotnet /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
+        tree /proj/dotnet_ws/src
 
         sudo colcon build
