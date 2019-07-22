@@ -137,4 +137,4 @@ build_script:
 
         source /home/appveyor/projects/ros2-linux/setup.sh
 
-        /bin/bash -c "cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.sh; colcon build"
+        /bin/bash -c "cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
