@@ -131,7 +131,7 @@ build_script:
 
         cd /proj/dotnet_ws
 
-        rm -r src/ros2_dotnet/ros2_dotnet
+        sudo rm -r src/ros2_dotnet/ros2_dotnet
 
         sudo cp -R /home/appveyor/projects/ros2-dotnet/ /proj/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
