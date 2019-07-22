@@ -133,8 +133,6 @@ build_script:
 
         cp -R /home/appveyor/projects/ros2-dotnet/ /home/appveyor/projects/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        tree /home/appveyor/projects
-
-        source /home/appveyor/projects/ros2-linux/local_setup.sh
+        source /home/appveyor/projects/ros2-linux/setup.sh
 
         colcon build
