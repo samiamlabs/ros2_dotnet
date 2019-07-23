@@ -10,6 +10,8 @@ image:
 
 environment:
   PYTHON3: "c:\\Python37"
+
+stack: python 3.6
   
 before_build:
   - cmd: >- 
@@ -50,7 +52,7 @@ before_build:
         python -m pip install -U pytest coverage mock flake8 flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes pep8 pydocstyle
 
   - sh: >-
-        ls /usr/bin/python*
+        python --version
 
         sudo python -m pip install -U vcstool
 
@@ -141,4 +143,4 @@ build_script:
 
         cp -R /home/appveyor/projects/ros2-dotnet/ /home/appveyor/projects/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        /bin/bash -c "alias python=/usr/bin/python3.6; python --version; cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
+        /bin/bash -c "python --version; cd /home/appveyor/projects/dotnet_ws; source /home/appveyor/projects/ros2-linux/setup.bash; colcon build"
