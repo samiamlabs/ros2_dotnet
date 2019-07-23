@@ -139,7 +139,7 @@ build_script:
 
         cp -R /home/appveyor/projects/ros2-dotnet/ /home/appveyor/projects/dotnet_ws/src/ros2_dotnet/ros2_dotnet
 
-        alias python=python3
+        alias python=python3.6
 
         python --version
 
