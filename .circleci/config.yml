@@ -2,9 +2,9 @@ version: 2.1
 
 jobs:
   build:
+    environment:
+        IMAGE_NAME: dynorobotics/balena-amd64-ros2-rcldotnet:dashing
     docker:
-      environment:
-          IMAGE_NAME: dynorobotics/balena-amd64-ros2-rcldotnet:dashing
       - image: dynorobotics/balena-amd64-ros2-rcldotnet:dashing
     steps:
       - checkout
