@@ -27,22 +27,20 @@ jobs:
     docker:
       - image: $IMAGE_NAME:${CIRCLE_BRANCH}-test
     steps:
-      - run: source /opt/dotnet_ws/install/setup.sh
       - run:
-          name: Change dir to test project
-          command: cd /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests
-      - run: dotnet build
-      - run: dotnet test --no-build --logger "trx"
-      - run:
-          name: test results
+          name: run tests
           command: |
+              source /opt/dotnet_ws/install/setup.sh
+              cd /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests
+              dotnet build
+              dotnet test --no-build --logger "trx"
               dotnet tool install -g trx2junit
               export PATH="$PATH:/root/.dotnet/tools"
               trx2junit TestResults/*.trx
       - store_test_results:
-          path: TestResults
+          path: /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests/TestResults
       - store_artifacts:
-          path: TestResults
+          path: /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests/TestResults
           destination: TestResults
 
   publish:
