@@ -1,13 +1,24 @@
 parameters:
   platform: ''
+  arch: ''
+  generator: 'Visual Studio 15 2017'
 
 steps:
 - script: |
+    choco install -y ^
+      curl
+    md \dev
+    cd \dev
+    curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+    unzip ros2_dashing.zip
+    rm ros2_dashing.zip
     python -m pip install -U ^
       setuptools ^
       pip
     pip install -U ^
       vcstool
+    pip install -U ^
+      colcon-common-extensions
     pip install -U ^
       catkin_pkg ^
       EmPy ^
@@ -29,88 +40,35 @@ steps:
       flake8-quotes ^
       pep8 ^
       pydocstyle
-    choco install -y ^
-      cppcheck
+    
   displayName: 'Install dependencies'
-
-- script: |
-    set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-    md \dev\ament\src
-    cd \dev\ament
-    copy $(Build.Repository.LocalPath)\ament_dotnet_uwp.repos \dev\ament\ament_dotnet_uwp.repos
-    vcs import src < ament_dotnet_uwp.repos
-    vcs branch
-    python src\ament\ament_tools\scripts\ament.py build --cmake-args -G "Visual Studio 15 2017 Win64" --
-    call install\local_setup.bat
-  displayName: 'Build ament'
-
-- ${{ if startsWith(parameters.platform, 'uwp') }}:
-  - script: |
-      set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-      md \dev\ros2\src
-      cd \dev\ros2
-      copy $(Build.Repository.LocalPath)\ros2_dotnet_uwp.repos \dev\ros2\ros2_dotnet_uwp.repos
-      vcs import src < ros2_dotnet_uwp.repos
-      cd \dev\ros2\src\ros2_dotnet
-      rd /s /q ros2_dotnet
-      xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
-      cd \dev\ament
-      call install\local_setup.bat
-      cd \dev\ros2
-      vcs branch
-      ament build ^
-        --parallel ^
-        --cmake-args ^
-          -G "${{ parameters.generator }}" ^
-          -DCMAKE_SYSTEM_NAME=WindowsStore ^
-          -DCMAKE_SYSTEM_VERSION=10.0.14393 ^
-          -DTHIRDPARTY=ON ^
-          -DINSTALL_EXAMPLES=OFF ^
-          -DCMAKE_FIND_ROOT_PATH="\dev\ament\install;\dev\ros2\install" ^
-        --
-    displayName: 'Build ros2-dotnet for UWP'
 
 - ${{ if eq(parameters.platform, 'desktop') }}:
   - script: |
       set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-      md \dev\ros2\src
-      cd \dev\ros2
-      copy $(Build.Repository.LocalPath)\ros2_dotnet.repos \dev\ros2\ros2_dotnet.repos
-      vcs import src < ros2_dotnet.repos
-      cd \dev\ros2\src\ros2_dotnet
+      md \dev\ros2_dotnet_ws\src
+      cd \dev\ros2_dotnet_ws
+      copy $(Build.Repository.LocalPath)\ros2_dotnet_dashing.repos \dev\ros2\ros2_dotnet_dashing.repos
+      vcs import src < ros2_dotnet_dashing.repos
+      cd \dev\ros2_dotnet_ws\src\ros2_dotnet
       rd /s /q ros2_dotnet
       xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
-      cd \dev\ament
-      call install\local_setup.bat
-      cd \dev\ros2
-      vcs branch
-      ament build ^
-        --parallel ^
+      call \dev\ros2-dashing\local_setup.bat
+      cd \dev\ros2_dotnet_ws
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
+      colcon build ^
         --cmake-args ^
           -G "${{ parameters.generator }}" ^
+          -A "${{ parameters.arch }}" ^
+          -DBUILD_TESTING=OFF ^
+          -DCMAKE_SYSTEM_NAME=WindowsStore ^
+          -DCMAKE_SYSTEM_VERSION=10.0.14393 ^
           -DTHIRDPARTY=ON ^
-          -DINSTALL_EXAMPLES=OFF ^
-          -DCMAKE_FIND_ROOT_PATH="\dev\ament\install;\dev\ros2\install" ^
-        --
-    displayName: 'Build ros2-dotnet for Desktop'
+          -DINSTALL_EXAMPLES=OFF
 
+    displayName: 'Build ros2-dotnet for Desktop'
   - script: |
-      set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
-      cd \dev\ament
-      call install\local_setup.bat
-      cd \dev\ros2
-      vcs branch
-      ament test ^
-        --only-packages ^
-          rcldotnet ^
-          rcldotnet_common ^
-          rcldotnet_examples ^
-          rosidl_generator_dotnet ^
-        --parallel ^
-        --cmake-args ^
-          -G "${{ parameters.generator }}" ^
-          -DTHIRDPARTY=ON ^
-          -DINSTALL_EXAMPLES=OFF ^
-          -DCMAKE_FIND_ROOT_PATH="\dev\ament\install;\dev\ros2\install" ^
-        --
+      call \dev\ros2_dotnet_ws\install\setup.bat
+      cd \dev\ros2_dotnet_ws\src\ros2_dotnet\ros2_dotnet\rcldotnet_tests
+      dotnet test
     displayName: 'Test ros2-dotnet for Desktop'
