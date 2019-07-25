@@ -12,6 +12,8 @@ from rosidl_parser.definition import AbstractNestedType
 from rosidl_parser.definition import AbstractGenericString
 from rosidl_parser.definition import AbstractString
 from rosidl_parser.definition import AbstractWString
+from rosidl_parser.definition import Array
+from rosidl_parser.definition import AbstractSequence
 from rosidl_parser.definition import BasicType
 from rosidl_parser.definition import BOOLEAN_TYPE
 from rosidl_parser.definition import CHARACTER_TYPES
@@ -53,6 +55,11 @@ public class @(message_class) : IRclcsMessage
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, (BasicType, AbstractGenericString, NamedType, NamespacedType))]@
   public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name, message_class)) { get; set; }
+@[  elif isinstance(member.type,AbstractSequence)]@
+@[     if isinstance(member.type.value_type, (BasicType, NamespacedType, NamedType))]@
+@# same for now
+  public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name, message_class)) { get; set; }
+@[     end if]@
 @[  end if]@
 @[end for]@
 
@@ -76,6 +83,7 @@ public class @(message_class) : IRclcsMessage
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   private delegate void NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle, [MarshalAs (UnmanagedType.LPStr)] string value);
+
 @[  elif isinstance(member.type, BasicType)]@
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   private delegate @(get_dotnet_type(member.type)) NativeReadField@(get_field_name(member.type, member.name, message_class))Type(
@@ -84,16 +92,47 @@ public class @(message_class) : IRclcsMessage
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   private delegate void NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle, @(get_dotnet_type(member.type)) value);
+
+@[  elif isinstance(member.type, AbstractSequence)]@
+@[    if isinstance(member.type.value_type, BasicType)]@
+  [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+  public delegate IntPtr NativeReadField@(get_field_name(member.type, member.name, message_class))Type(
+    out int array_size,
+    IntPtr messageHandle);
+
+  [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+  public delegate bool NativeWriteField@(get_field_name(member.type, member.name, message_class))Type(
+      [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.@(get_marshal_type(member.type.value_type)), SizeParamIndex = 1)]
+      @(get_dotnet_type(member.type)) values,
+      int array_size,
+      IntPtr messageHandle);
+
+@[    end if]@
 @[  end if]@
-@[  if isinstance(member.type, (AbstractGenericString, BasicType))]@
+@[  if isinstance(member.type, (AbstractGenericString, BasicType)) or (isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, BasicType))]@
   private static NativeReadField@(get_field_name(member.type, member.name, message_class))Type native_read_field_@(member.name) = null;
   private static NativeWriteField@(get_field_name(member.type, member.name, message_class))Type native_write_field_@(member.name) = null;
+
 @[  end if]@
 @[  if isinstance(member.type, (NamedType, NamespacedType))]@
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   private delegate IntPtr NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type(
     IntPtr messageHandle);
   private static NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type native_get_nested_message_handle_@(member.name) = null;
+
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType))]@
+  private delegate IntPtr NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type(
+    IntPtr messageHandle, int index);
+  private static NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type native_get_nested_message_handle_@(member.name) = null;
+
+  private delegate int NativeGetArraySize@(get_field_name(member.type, member.name, message_class))Type(
+    IntPtr messageHandle);
+  private static NativeGetArraySize@(get_field_name(member.type, member.name, message_class))Type native_get_array_size_@(member.name) = null;
+
+  private delegate bool NativeInitSequence@(get_field_name(member.type, member.name, message_class))Type(
+    IntPtr messageHandle, int size);
+  private static NativeInitSequence@(get_field_name(member.type, member.name, message_class))Type native_init_sequence_@(member.name) = null;
+
 @[  end if]@
 @[end for]@
 
@@ -114,7 +153,7 @@ public class @(message_class) : IRclcsMessage
       native_destroy_native_message_ptr, typeof(NativeDestroyNativeMessageType));
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, (BasicType, AbstractGenericString))]@
+@[  if isinstance(member.type, (BasicType, AbstractGenericString)) or (isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, BasicType))]@
     IntPtr native_read_field_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_read_field_@(member.name)");
     @(message_class).native_read_field_@(member.name) =
@@ -126,12 +165,32 @@ public class @(message_class) : IRclcsMessage
     @(message_class).native_write_field_@(member.name) =
       (NativeWriteField@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
       native_write_field_@(member.name)_ptr, typeof(NativeWriteField@(get_field_name(member.type, member.name, message_class))Type));
+
 @[  elif isinstance(member.type, (NamedType, NamespacedType))]@
     IntPtr native_get_nested_message_handle_@(member.name)_ptr =
       dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_nested_message_handle_@(member.name)");
     @(message_class).native_get_nested_message_handle_@(member.name) =
       (NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
       native_get_nested_message_handle_@(member.name)_ptr, typeof(NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type));
+
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType))]@
+    IntPtr native_get_nested_message_handle_@(member.name)_ptr =
+      dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_nested_message_handle_@(member.name)");
+    @(message_class).native_get_nested_message_handle_@(member.name) =
+      (NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+    native_get_nested_message_handle_@(member.name)_ptr, typeof(NativeGetNestedHandle@(get_field_name(member.type, member.name, message_class))Type));
+
+    IntPtr native_get_array_size_@(member.name)_ptr =
+      dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_get_array_size_@(member.name)");
+    @(message_class).native_get_array_size_@(member.name) =
+      (NativeGetArraySize@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+    native_get_array_size_@(member.name)_ptr, typeof(NativeGetArraySize@(get_field_name(member.type, member.name, message_class))Type));
+
+    IntPtr native_init_sequence_@(member.name)_ptr =
+      dllLoadUtils.GetProcAddress(nativelibrary, "@(c_full_name)_native_init_sequence_@(member.name)");
+    @(message_class).native_init_sequence_@(member.name) =
+      (NativeInitSequence@(get_field_name(member.type, member.name, message_class))Type)Marshal.GetDelegateForFunctionPointer(
+    native_init_sequence_@(member.name)_ptr, typeof(NativeInitSequence@(get_field_name(member.type, member.name, message_class))Type));
 @[  end if]@
 @[end for]@
   }
@@ -177,20 +236,64 @@ public class @(message_class) : IRclcsMessage
       IntPtr pStr = native_read_field_@(member.name)(handle);
       @(get_field_name(member.type, member.name, message_class)) = Marshal.PtrToStringAnsi(pStr);
     }
-@[  elif isinstance(member.type, BasicType)]@
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, BasicType)]@
+    { //TODO - (adam) this is a bit clunky. Is there a better way to marshal unsigned and bool types?
+      int arraySize = 0;
+      IntPtr pArr = native_read_field_@(member.name)(out arraySize, handle);
+      @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type.value_type))[arraySize];
+      @(get_marshal_array_type(member.type))[] __@(get_field_name(member.type, member.name, message_class)) = new @(get_marshal_array_type(member.type))[arraySize];
+      int start = 0;
+
+      Marshal.Copy(pArr, __@(get_field_name(member.type, member.name, message_class)), start, arraySize);
+      for (int i = 0; i < arraySize; ++i)
+      {
+@[    if get_dotnet_type(member.type.value_type) == 'bool']@
+        bool _boolean_value = __@(get_field_name(member.type, member.name, message_class))[i] != 0;
+        @(get_field_name(member.type, member.name, message_class))[i] = _boolean_value;
+@[    else]@
+        @(get_field_name(member.type, member.name, message_class))[i] = (@(get_dotnet_type(member.type.value_type)))(__@(get_field_name(member.type, member.name, message_class))[i]);
+@[    end if]@
+      }
+    }
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType))]@
+    {
+      int __native_array_size = native_get_array_size_@(member.name)(handle);
+      @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type.value_type))[__native_array_size];
+      for (int i = 0; i < __native_array_size; ++i)
+      {
+        @(get_field_name(member.type, member.name, message_class))[i] = new @(get_dotnet_type(member.type.value_type))(native_get_nested_message_handle_@(member.name)(handle, i));
+        @(get_field_name(member.type, member.name, message_class))[i].ReadNativeMessage();
+      }
+    }
+    @[  elif isinstance(member.type, BasicType)]@
     @(get_field_name(member.type, member.name, message_class)) = native_read_field_@(member.name)(handle);
-@[  elif isinstance(member.type, (NamedType, NamespacedType))]
+@[  elif isinstance(member.type, (NamedType, NamespacedType))]@
     @(get_field_name(member.type, member.name, message_class)).ReadNativeMessage();
 @[  end if]@
 @[end for]@
   }
 
+  //Write from CS to native handle
   public void WriteNativeMessage()
   {
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, (BasicType, AbstractGenericString))]@
     native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name, message_class)));
-@[  elif isinstance(member.type, (NamedType, NamespacedType))]
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, BasicType)]@
+    {
+      bool success = native_write_field_@(member.name)(@(get_field_name(member.type, member.name, message_class)), @(get_field_name(member.type, member.name, message_class)).Length, handle);
+      //TODO - check success
+    }
+@[  elif isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType))]@
+    {
+      bool success = native_init_sequence_@(member.name)(handle, @(get_field_name(member.type, member.name, message_class)).Length);
+      //TODO - check success
+      for (int i = 0; i < @(get_field_name(member.type, member.name, message_class)).Length; ++i)
+      {
+        @(get_field_name(member.type, member.name, message_class))[i].WriteNativeMessage();
+      }
+    }
+@[  elif isinstance(member.type, (NamedType, NamespacedType))]@
     @(get_field_name(member.type, member.name, message_class)).WriteNativeMessage();
 @[  end if]@
 @[end for]@

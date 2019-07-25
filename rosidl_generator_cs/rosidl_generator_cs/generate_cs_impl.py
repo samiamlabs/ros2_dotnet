@@ -33,6 +33,7 @@ from rosidl_parser.definition import UnboundedSequence
 import logging
 import sys
 
+
 def generate_cs(generator_arguments_file, typesupport_impls):
     type_support_impl_by_filename = {
         '%s.ep.{0}.c'.format(impl): impl for impl in typesupport_impls
@@ -48,7 +49,9 @@ def generate_cs(generator_arguments_file, typesupport_impls):
         'get_field_name' : get_field_name,
         'get_dotnet_type' : get_dotnet_type,
         'constant_value_to_dotnet' : constant_value_to_dotnet,
-        'get_c_type' : get_c_type
+        'get_c_type' : get_c_type,
+        'get_marshal_type' : get_marshal_type,
+        'get_marshal_array_type' : get_marshal_array_type
     }
 
     generate_files(generator_arguments_file, mapping, additional_context)
@@ -61,6 +64,7 @@ def escape_string(s):
     s = s.replace('\\', '\\\\')
     s = s.replace('"', '\\"')
     return s
+
 
 def constant_value_to_dotnet(type_, value):
     assert value is not None
@@ -133,6 +137,55 @@ def get_c_type(type_):
     return idl_type_to_c(type_)
 
 
+BASIC_IDL_TYPES_TO_MARSHAL = {
+    'float': 'R4',
+    'double': 'R8',
+    'long double': 'R8',
+    'char': 'I1',
+    'wchar': 'I2',
+    'boolean': 'I1',
+    'octet': 'U1',
+    'uint8': 'U1',
+    'int8': 'I1',
+    'uint16': 'U2',
+    'int16': 'I2',
+    'uint32': 'U4',
+    'int32': 'I4',
+    'uint64': 'U8',
+    'int64': 'I8'
+}
+
+BASIC_IDL_TYPES_TO_MARSHAL_ARRAY = {
+    'float': 'float',
+    'double': 'double',
+    'long double': 'double',
+    'char': 'char',
+    'wchar': 'short',
+    'boolean': 'byte',
+    'octet': 'byte',
+    'uint8': 'byte',
+    'int8': 'char',
+    'uint16': 'short',
+    'int16': 'short',
+    'uint32': 'int',
+    'int32': 'int',
+    'uint64': 'long',
+    'int64': 'long'
+}
+
+
+def get_marshal_type(type_):
+    if isinstance(type_, BasicType):
+        return BASIC_IDL_TYPES_TO_MARSHAL[type_.typename]
+    assert False, "unsupported marshal type '%s'" % type_
+
+
+def get_marshal_array_type(type_):
+    if isinstance(type_, AbstractSequence):
+        return BASIC_IDL_TYPES_TO_MARSHAL_ARRAY[type_.value_type.typename]
+    assert False, "unsupported marshal array type '%s'" % type_
+
+
 def get_dotnet_type(type_, use_primitives=True):
     if isinstance(type_, AbstractGenericString):
         return 'System.String'
@@ -143,10 +196,15 @@ def get_dotnet_type(type_, use_primitives=True):
     if isinstance(type_, NamedType):
         return type_.name
 
+    if isinstance(type_, (AbstractSequence, Array)):
+        return get_dotnet_type(type_.value_type) + "[]"
+
     return get_builtin_dotnet_type(type_.typename, use_primitives=use_primitives)
+
 
 def upperfirst(s):
     return s[0].capitalize() + s[1:]
+
 
 def get_field_name(type_name, field_name, class_name):
     ucased_name = upperfirst(field_name)
