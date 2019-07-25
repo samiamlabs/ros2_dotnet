@@ -1,11 +1,15 @@
-version: 2
+version: 2.1
+
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: dynorobotics/balena-amd64-ros2-rcldotnet
+    docker:
+      - image: circleci/buildpack-deps:stretch
 
 jobs:
   build:
-    environment:
-        IMAGE_NAME: dynorobotics/balena-amd64-ros2-rcldotnet
-    docker:
-      - image: circleci/buildpack-deps:stretch
+    executor: docker-publiser
     steps:
       - checkout
       - setup_remote_docker
@@ -14,6 +18,7 @@ jobs:
           command: docker build -t $IMAGE_NAME:latest .
 
   test:
+    executor: docker-publiser
     docker:
       - image: $IMAGE_NAME:latest
     steps:
@@ -37,20 +42,20 @@ jobs:
         
 
 workflows:
-      version: 2
-      main:
-        jobs:
-          - build:
-              filters:
-                branches:
-                  only: 
-                    - dashing
-                    - circleci
-          - test:
-              requires:
-                - build
-              filters:
-                branches:
-                  only: 
-                    - dashing
-                    - circleci
+  version: 2
+  main:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 
+                - dashing
+                - circleci
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only: 
+                - dashing
+                - circleci
