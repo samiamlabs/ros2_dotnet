@@ -21,13 +21,6 @@ jobs:
           command: |
                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 docker push $IMAGE_NAME:${CIRCLE_BRANCH}-test 
-      - run:
-          name: Archive Docker image
-          command: docker save -o image.tar $IMAGE_NAME:${CIRCLE_BRANCH}-test
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./image.tar
 
   test:
     executor: docker-publisher
@@ -55,18 +48,14 @@ jobs:
   publish:
     executor: docker-publisher
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
       - setup_remote_docker
       - run:
-          name: Load archived Docker image
-          command: docker load -i /tmp/workspace/image.tar
-      - run: docker tag $IMAGE_NAME:${CIRCLE_BRANCH}-test $IMAGE_NAME:${CIRCLE_BRANCH}
-      - run:
-          name: Publish Docker Image to Docker Hub
+          name: Publish image to Docker Hub
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            docker pull $IMAGE_NAME:${CIRCLE_BRANCH}-test
+            docker tag $IMAGE_NAME:${CIRCLE_BRANCH}-test $IMAGE_NAME:${CIRCLE_BRANCH}
+            docker push $IMAGE_NAME:${CIRCLE_BRANCH}
         
 
 workflows:
@@ -82,6 +71,14 @@ workflows:
       - test:
           requires:
             - build
+          filters:
+            branches:
+              only: 
+                - dashing
+                - circleci
+      - publish:
+          requires:
+            - test
           filters:
             branches:
               only: 
