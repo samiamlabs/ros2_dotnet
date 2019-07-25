@@ -12,4 +12,4 @@ RUN rm -r src/ros2_dotnet/ros2_dotnet
 
 COPY . src/ros2_dotnet/ros2_dotnet
 
-RUN bash -c ". /opt/ros2_ws/install/setup.bash; colcon build"
+# RUN bash -c ". /opt/ros2_ws/install/setup.bash; colcon build"
