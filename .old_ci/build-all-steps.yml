@@ -1,0 +1,74 @@
+parameters:
+  platform: ''
+  arch: ''
+  generator: 'Visual Studio 15 2017'
+
+steps:
+- script: |
+    choco install -y ^
+      curl
+    md \dev
+    cd \dev
+    curl -o ros2-dashing.zip -L https://github.com/ros2/ros2/releases/download/release-dashing-20190614/ros2-dashing-20190614-windows-release-amd64.zip 
+    unzip ros2_dashing.zip
+    rm ros2_dashing.zip
+    python -m pip install -U ^
+      setuptools ^
+      pip
+    pip install -U ^
+      vcstool
+    pip install -U ^
+      colcon-common-extensions
+    pip install -U ^
+      catkin_pkg ^
+      EmPy ^
+      lark-parser ^
+      pyparsing pyyaml
+    pip install -U ^
+      pytest ^
+      coverage ^
+      mock
+    pip install -U ^
+      flake8 ^
+      flake8-blind-except ^
+      flake8-builtins ^
+      flake8-class-newline ^
+      flake8-comprehensions ^
+      flake8-deprecated ^
+      flake8-docstrings ^
+      flake8-import-order ^
+      flake8-quotes ^
+      pep8 ^
+      pydocstyle
+    
+  displayName: 'Install dependencies'
+
+- ${{ if eq(parameters.platform, 'desktop') }}:
+  - script: |
+      set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin
+      md \dev\ros2_dotnet_ws\src
+      cd \dev\ros2_dotnet_ws
+      copy $(Build.Repository.LocalPath)\ros2_dotnet_dashing.repos \dev\ros2\ros2_dotnet_dashing.repos
+      vcs import src < ros2_dotnet_dashing.repos
+      cd \dev\ros2_dotnet_ws\src\ros2_dotnet
+      rd /s /q ros2_dotnet
+      xcopy /e /i $(Build.Repository.LocalPath) ros2_dotnet
+      call \dev\ros2-dashing\local_setup.bat
+      cd \dev\ros2_dotnet_ws
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
+      colcon build ^
+        --cmake-args ^
+          -G "${{ parameters.generator }}" ^
+          -A "${{ parameters.arch }}" ^
+          -DBUILD_TESTING=OFF ^
+          -DCMAKE_SYSTEM_NAME=WindowsStore ^
+          -DCMAKE_SYSTEM_VERSION=10.0.14393 ^
+          -DTHIRDPARTY=ON ^
+          -DINSTALL_EXAMPLES=OFF
+
+    displayName: 'Build ros2-dotnet for Desktop'
+  - script: |
+      call \dev\ros2_dotnet_ws\install\setup.bat
+      cd \dev\ros2_dotnet_ws\src\ros2_dotnet\ros2_dotnet\rcldotnet_tests
+      dotnet test
+    displayName: 'Test ros2-dotnet for Desktop'

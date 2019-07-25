@@ -1,5 +1,5 @@
 /*
-© Dyno Robotics, 2019
+ï¿½ Dyno Robotics, 2019
 Author: Samuel Lindgren (samuel@dynorobotics.se)
 Licensed under the Apache License, Version 2.0 (the "License");
 
@@ -42,8 +42,8 @@ namespace rclcs
         private IntPtr impl;
         private IntPtr instance_id_storage;
     }
-
-    public unsafe struct rcl_error_string_t
+    // NOTE(sam): removed unsafe to fix build error
+    public struct rcl_error_string_t
     {
         internal IntPtr str;
     }

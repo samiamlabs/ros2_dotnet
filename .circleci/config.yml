@@ -1,0 +1,83 @@
+version: 2.1
+
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: dynorobotics/balena-amd64-ros2-rcldotnet
+    docker:
+      - image: circleci/buildpack-deps:stretch
+
+jobs:
+  build:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: docker build -t $IMAGE_NAME:${CIRCLE_BRANCH}-test .
+      - run: 
+          name: Push test image to DockerHub
+          command: |
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                docker push $IMAGE_NAME:${CIRCLE_BRANCH}-test 
+
+  test:
+    executor: docker-publisher
+    docker:
+      - image: $IMAGE_NAME:${CIRCLE_BRANCH}-test
+    steps:
+      - run:
+          name: Runing tests
+          command: |
+              source /opt/dotnet_ws/install/setup.sh
+              cd /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests
+              dotnet build
+              dotnet test --no-build --logger "trx"
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:/root/.dotnet/tools"
+              trx2junit TestResults/*.trx
+      - store_test_results:
+          path: /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests/TestResults
+      - store_artifacts:
+          path: /opt/dotnet_ws/src/ros2_dotnet/ros2_dotnet/rcldotnet_tests/TestResults
+          destination: TestResults
+
+  publish:
+    executor: docker-publisher
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Publish image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker pull $IMAGE_NAME:${CIRCLE_BRANCH}-test
+            docker tag $IMAGE_NAME:${CIRCLE_BRANCH}-test $IMAGE_NAME:${CIRCLE_BRANCH}
+            docker push $IMAGE_NAME:${CIRCLE_BRANCH}
+        
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 
+                - dashing
+                - automatic-testing
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only: 
+                - dashing
+                - automatic-testing
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only: 
+                - dashing

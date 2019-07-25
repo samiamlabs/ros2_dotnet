@@ -35,3 +35,9 @@ Listener
 ```
 ros2 run rcldotnet_examples rcldotnet_listener
 ```
+
+Testing. Source install/setup.bash in terminal and change directory to rcldotnet_tests under src:
+
+```
+dotnet watch test
+```

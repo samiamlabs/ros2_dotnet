@@ -1,0 +1,20 @@
+trigger:
+  branches:
+    include:
+    - dashing
+    - automatic-testing
+  paths:
+    exclude:
+    - README.md
+
+jobs:
+- job: 'desktop'
+  displayName: 'Build all tasks (Desktop)'
+  condition: and(succeeded(), not(variables.task))
+  pool:
+    vmImage: vs2017-win2016
+  steps:
+  - template: ci/build-all-steps.yml
+    parameters:
+      generator: 'Visual Studio 15 2017 Win64'
+      platform: 'desktop'
