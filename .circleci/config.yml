@@ -9,7 +9,7 @@ executors:
 
 jobs:
   build:
-    executor: docker-publiser
+    executor: docker-publisher
     steps:
       - checkout
       - setup_remote_docker
@@ -18,7 +18,7 @@ jobs:
           command: docker build -t $IMAGE_NAME:latest .
 
   test:
-    executor: docker-publiser
+    executor: docker-publisher
     docker:
       - image: $IMAGE_NAME:latest
     steps:
