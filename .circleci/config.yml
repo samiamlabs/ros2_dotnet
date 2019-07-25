@@ -23,7 +23,7 @@ jobs:
                 docker push $IMAGE_NAME:${CIRCLE_BRANCH}-test 
       - run:
           name: Archive Docker image
-          command: docker save -o image.tar $IMAGE_NAME
+          command: docker save -o image.tar $IMAGE_NAME:${CIRCLE_BRANCH}-test
       - persist_to_workspace:
           root: .
           paths:
