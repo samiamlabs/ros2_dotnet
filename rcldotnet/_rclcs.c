@@ -68,6 +68,20 @@ void rclcs_subscription_dispose_options(rcl_subscription_options_t * subscriptio
 }
 
 ROSIDL_GENERATOR_C_EXPORT
+rcl_publisher_options_t * rclcs_publisher_create_default_options()
+{
+  rcl_publisher_options_t  * default_publisher_options_handle = (rcl_publisher_options_t *)malloc(sizeof(rcl_publisher_options_t));
+  *default_publisher_options_handle = rcl_publisher_get_default_options();
+  return default_publisher_options_handle;
+}
+
+ROSIDL_GENERATOR_C_EXPORT
+void rclcs_publisher_dispose_options(rcl_publisher_options_t * publisher_options_handle)
+{
+  free(publisher_options_handle);
+}
+
+ROSIDL_GENERATOR_C_EXPORT
 char * rclcs_get_error_string()
 {
   rcl_error_string_t error_string = rcl_get_error_string();

@@ -261,30 +261,31 @@ namespace rclcs.TestNativeMethods
             rcl_publisher_t publisher = NativeMethods.rcl_get_zero_initialized_publisher();
         }
 
-        public static void InitPublisher(ref rcl_publisher_t publisher, ref rcl_node_t node)
+        public static void InitPublisher(ref rcl_publisher_t publisher, ref rcl_node_t node, IntPtr publisherOptions)
         {
             RCLReturnEnum ret;
             publisher = NativeMethods.rcl_get_zero_initialized_publisher();
-            rcl_publisher_options_t publisherOptions = NativeMethods.rcl_publisher_get_default_options();
+            publisherOptions = NativeMethods.rclcs_publisher_create_default_options();
             IRclcsMessage msg = new std_msgs.msg.Bool();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
-            ret = (RCLReturnEnum)NativeMethods.rcl_publisher_init(ref publisher, ref node, typeSupportHandle, "publisher_test_topic", ref publisherOptions);
-            Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
+            ret = (RCLReturnEnum)NativeMethods.rcl_publisher_init(ref publisher, ref node, typeSupportHandle, "publisher_test_topic", publisherOptions);
         }
 
-        public static void ShutdownPublisher(ref rcl_publisher_t publisher, ref rcl_node_t node)
+        public static void ShutdownPublisher(ref rcl_publisher_t publisher, ref rcl_node_t node, IntPtr publisherOptions)
         {
             RCLReturnEnum ret;
             ret = (RCLReturnEnum)NativeMethods.rcl_publisher_fini(ref publisher, ref node);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
+            NativeMethods.rclcs_publisher_dispose_options(publisherOptions);
         }
 
         [Test]
         public void PublisherInit()
         {
             rcl_publisher_t publisher = new rcl_publisher_t();
-            InitPublisher(ref publisher, ref node);
-            ShutdownPublisher(ref publisher, ref node);
+            IntPtr publisherOptions = new IntPtr();
+            InitPublisher(ref publisher, ref node, publisherOptions);
+            ShutdownPublisher(ref publisher, ref node, publisherOptions);
 
         } 
     }
@@ -315,11 +316,12 @@ namespace rclcs.TestNativeMethods
         {
             RCLReturnEnum ret;
             rcl_publisher_t publisher = new rcl_publisher_t();
-            PublisherInitialize.InitPublisher(ref publisher, ref node);
+            IntPtr publisherOptions = new IntPtr();
+            PublisherInitialize.InitPublisher(ref publisher, ref node, publisherOptions);
             IRclcsMessage msg = new std_msgs.msg.Bool();
             ret = (RCLReturnEnum)NativeMethods.rcl_publish(ref publisher, msg.Handle);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
-            PublisherInitialize.ShutdownPublisher(ref publisher, ref node);
+            PublisherInitialize.ShutdownPublisher(ref publisher, ref node, publisherOptions);
 
         }
     }

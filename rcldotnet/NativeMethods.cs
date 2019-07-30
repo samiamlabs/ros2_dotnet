@@ -171,7 +171,7 @@ namespace rclcs
 
         // rcl_publisher_init
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate int PublisherInitType(ref rcl_publisher_t publisher, ref rcl_node_t node, IntPtr type_support_ptr, string topic_name, ref rcl_publisher_options_t publisher_options);
+        internal delegate int PublisherInitType(ref rcl_publisher_t publisher, ref rcl_node_t node, IntPtr type_support_ptr, string topic_name, IntPtr publisher_options);
         internal static PublisherInitType
             rcl_publisher_init =
             (PublisherInitType)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
@@ -418,6 +418,26 @@ namespace rclcs
             nativeRclcs,
             "rclcs_subscription_dispose_options"),
             typeof(SubscriptionDisposeOptionsType));
+
+        // rclcs_publisher_create_default_options
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate IntPtr PublisherCreateDefaultOptionsType();
+        internal static PublisherCreateDefaultOptionsType
+            rclcs_publisher_create_default_options =
+            (PublisherCreateDefaultOptionsType)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
+            nativeRclcs,
+            "rclcs_publisher_create_default_options"),
+            typeof(PublisherCreateDefaultOptionsType));
+
+        // rclcs_publisher_dispose_options
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void PublisherDisposeOptionsType(IntPtr options);
+        internal static PublisherDisposeOptionsType
+            rclcs_publisher_dispose_options =
+            (PublisherDisposeOptionsType)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
+            nativeRclcs,
+            "rclcs_publisher_dispose_options"),
+            typeof(PublisherDisposeOptionsType));
 
         // rclcs_subscription_set_qos_profile
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
