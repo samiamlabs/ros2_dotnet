@@ -1,6 +1,8 @@
 ROS2 for .NET
 =============
 
+[![CircleCI](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing.svg?style=svg)](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing)
+
 TODO - update README. This works a bit for Dashing now - examples of talker and listener and message generation. (lots to do still)
 
 See Projects page for what tasks and contributions are needed.

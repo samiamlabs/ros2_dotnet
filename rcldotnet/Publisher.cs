@@ -26,13 +26,15 @@ namespace rclcs
         rcl_publisher_t handle;
         rcl_node_t nodeHandle;
 
+        private IntPtr publisherOptions = new IntPtr();
+
         private bool disposed;
 
         public Publisher(string topic, Node node)
         {
             nodeHandle = node.handle;
             handle = NativeMethods.rcl_get_zero_initialized_publisher();
-            rcl_publisher_options_t publisherOptions = NativeMethods.rcl_publisher_get_default_options();
+            IntPtr publisherOptions = NativeMethods.rclcs_publisher_create_default_options();
             //TODO(samiam): Figure out why System.Reflection is not available 
             //when building with colcon/xtool on ubuntu 18.04 and mono 4.5
 
@@ -46,7 +48,7 @@ namespace rclcs
                                     ref nodeHandle, 
                                     typeSupportHandle, 
                                     topic,
-                                    ref publisherOptions));
+                                    publisherOptions));
         }
 
         ~Publisher()
@@ -78,6 +80,7 @@ namespace rclcs
         private void DestroyPublisher()
         {
             Utils.CheckReturnEnum(NativeMethods.rcl_publisher_fini(ref handle, ref nodeHandle));
+            NativeMethods.rclcs_publisher_dispose_options(publisherOptions);
         }
 
 
