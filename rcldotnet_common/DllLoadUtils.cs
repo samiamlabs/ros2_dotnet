@@ -21,6 +21,12 @@ using System.Runtime.InteropServices;
 
 namespace ROS2 {
   namespace Utils {
+
+    public class GlobalVariables {
+      public static bool preloadLibrary = false;
+      public static string preloadLibraryName = "";
+    }
+
     public class UnsatisfiedLinkError : System.Exception {
       public UnsatisfiedLinkError () : base () { }
       public UnsatisfiedLinkError (string message) : base (message) { }
@@ -245,7 +251,25 @@ namespace ROS2 {
       [DllImport ("libdl.so", ExactSpelling = true)]
       private static extern IntPtr dlerror ();
 
-      const int RTLD_NOW = 2;
+      const int RTLD_NOW = 0x00002;
+      const int RTLD_DEEPBIND = 0x00008;
+
+      //(adamdbrw) Somewhat hacky solution to open (and dereference) the problematic library
+      //that otherwise causes crashes in Unity Editor. TODO - improve this
+      private bool libPreloaded = false;
+      void CheckPreloadLibraries()
+      {
+          if (libPreloaded || GlobalVariables.preloadLibraryName == "")
+              return;
+
+          IntPtr libPtr = dlopen(GlobalVariables.preloadLibraryName, RTLD_NOW | RTLD_DEEPBIND);
+          if (libPtr == IntPtr.Zero)
+              throw new InvalidOperationException("Zero pointer");
+
+          //Dereference the counter right away
+          FreeLibrary(libPtr); //TODO retval?
+          libPreloaded = true;
+      }
 
       public void FreeLibrary (IntPtr handle) {
         dlclose (handle);
@@ -263,6 +287,8 @@ namespace ROS2 {
       }
 
       public IntPtr LoadLibrary (string fileName) {
+        if (GlobalVariables.preloadLibrary)
+          CheckPreloadLibraries();
         string libraryName = "lib" + fileName + "_native.so";
         IntPtr ptr = dlopen (libraryName, RTLD_NOW);
         if (ptr == IntPtr.Zero) {
@@ -272,6 +298,8 @@ namespace ROS2 {
       }
 
       public IntPtr LoadLibraryNoSuffix (string fileName) {
+        if (GlobalVariables.preloadLibrary)
+          CheckPreloadLibraries();
         string libraryName = "lib" + fileName + ".so";
         IntPtr ptr = dlopen (libraryName, RTLD_NOW);
         if (ptr == IntPtr.Zero) {
