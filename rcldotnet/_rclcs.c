@@ -40,6 +40,23 @@ limitations under the License.
 #include <signal.h>
 
 ROSIDL_GENERATOR_C_EXPORT
+int rclcs_init(rcl_context_t *context, rcl_allocator_t allocator)
+{
+  rcl_init_options_t init_options = rcl_get_zero_initialized_init_options();
+
+  rcl_ret_t ret = rcl_init_options_init(&init_options, allocator);
+  if (ret != RCL_RET_OK)
+    return (int)ret;
+
+  ret = rcl_init(0, NULL, &init_options, context);
+  if (ret != RCL_RET_OK)
+    return (int)ret;
+
+  ret = rcl_init_options_fini(&init_options);
+  return ret;
+}
+
+ROSIDL_GENERATOR_C_EXPORT
 rcl_node_options_t * rclcs_node_create_default_options()
 {
   rcl_node_options_t  * default_node_options_handle = (rcl_node_options_t *)malloc(sizeof(rcl_node_options_t));

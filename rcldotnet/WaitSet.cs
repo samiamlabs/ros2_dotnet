@@ -46,7 +46,7 @@ namespace rclcs
             ulong numberOfServices = 0;
             ulong numberOfEvents = 0;
 
-            allocator = NativeMethods.rcl_get_default_allocator();
+            allocator = NativeMethods.rcutils_get_default_allocator();
             handle = NativeMethods.rcl_get_zero_initialized_wait_set();
 
             Utils.CheckReturnEnum(NativeMethods.rcl_wait_set_init(

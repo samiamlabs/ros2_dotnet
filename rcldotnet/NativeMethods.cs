@@ -29,6 +29,7 @@ namespace rclcs
         private static readonly IntPtr nativeRCL = dllLoadUtils.LoadLibraryNoSuffix("rcl");
 
         // rcl_get_zero_initialized_context
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate rcl_context_t GetZeroInitializedContextType();
         internal static GetZeroInitializedContextType
@@ -333,10 +334,11 @@ namespace rclcs
         private static readonly IntPtr nativeRCUtils = dllLoadUtils.LoadLibraryNoSuffix("rcutils");
 
         // rcl_get_default_allocator
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate rcl_allocator_t RclGetDefaultAllocatorType();
         internal static RclGetDefaultAllocatorType
-            rcl_get_default_allocator =
+            rcutils_get_default_allocator =
             (RclGetDefaultAllocatorType)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
             nativeRCUtils,
             "rcutils_get_default_allocator"),
@@ -356,6 +358,16 @@ namespace rclcs
         // --- Custom rclcs lib ---
 
         private static readonly IntPtr nativeRclcs = dllLoadUtils.LoadLibrary("rclcs");
+
+        // rclcs_init
+
+        internal delegate int RCLCSInitType(ref rcl_context_t context, rcl_allocator_t allocator);
+        internal static RCLCSInitType
+            rclcs_init =
+            (RCLCSInitType)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
+            nativeRclcs,
+            "rclcs_init"),
+            typeof(RCLCSInitType));
 
         // rcl_get_error_string
 

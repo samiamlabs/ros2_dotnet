@@ -33,17 +33,13 @@ namespace rclcs
 
         public Context()
         {
-            allocator = NativeMethods.rcl_get_default_allocator();
+            allocator = NativeMethods.rcutils_get_default_allocator();
             handle = NativeMethods.rcl_get_zero_initialized_context();
         }
 
         public void Init()
         {
-            rcl_init_options_t init_options = NativeMethods.rcl_get_zero_initialized_init_options();
-
-            Utils.CheckReturnEnum(NativeMethods.rcl_init_options_init(ref init_options, allocator));
-            Utils.CheckReturnEnum(NativeMethods.rcl_init(0, null, ref init_options, ref handle));
-
+            Utils.CheckReturnEnum(NativeMethods.rclcs_init(ref handle, allocator));
             isInit = true;
         }
 
@@ -90,4 +86,3 @@ namespace rclcs
     }
 
 }
-

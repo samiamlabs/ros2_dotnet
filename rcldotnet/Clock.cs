@@ -70,11 +70,11 @@ namespace rclcs
             }
             else if (sec > other.sec)
             {
-                return 1; 
+                return 1;
             }
             else if ((sec == other.sec) && (nanosec > other.nanosec))
             {
-                return 1; 
+                return 1;
             }
             else
             {
@@ -207,7 +207,7 @@ namespace rclcs
 
         public Clock()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             handle = NativeMethods.rclcs_ros_clock_create(ref allocator);
         }
 
