@@ -19,7 +19,7 @@ namespace rclcs.TestNativeMethods
             RCLReturnEnum ret;
             NativeMethods.rcl_reset_error();
             rcl_init_options_t init_options = NativeMethods.rcl_get_zero_initialized_init_options();
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             ret = (RCLReturnEnum)NativeMethods.rcl_init_options_init(ref init_options, allocator);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK));
 
@@ -77,7 +77,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void GetDefaultAllocator()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace rclcs.TestNativeMethods
         public void InitOptionsInit()
         {
             rcl_init_options_t init_options = NativeMethods.rcl_get_zero_initialized_init_options();
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             int ret = NativeMethods.rcl_init_options_init(ref init_options, allocator);
             Assert.That((RCLReturnEnum)ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK));
         }
@@ -114,7 +114,7 @@ namespace rclcs.TestNativeMethods
         public void InitValidArgs()
         {
             rcl_init_options_t init_options = NativeMethods.rcl_get_zero_initialized_init_options();
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             NativeMethods.rcl_init_options_init(ref init_options, allocator);
             rcl_context_t context = NativeMethods.rcl_get_zero_initialized_context();
 
@@ -418,7 +418,7 @@ namespace rclcs.TestNativeMethods
         {
             NativeMethods.rcl_reset_error();
 
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             rcl_wait_set_t waitSet = NativeMethods.rcl_get_zero_initialized_wait_set();
             TestUtils.AssertRetOk(NativeMethods.rcl_wait_set_init(ref waitSet, 1, 0, 0, 0, 0, 0, ref context, allocator));
             TestUtils.AssertRetOk(NativeMethods.rcl_wait_set_clear(ref waitSet));
@@ -464,7 +464,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void WaitSetInit()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             rcl_wait_set_t waitSet = NativeMethods.rcl_get_zero_initialized_wait_set();
             TestUtils.AssertRetOk(NativeMethods.rcl_wait_set_init(ref waitSet, 1, 0, 0, 0, 0, 0, ref context, allocator));
             TestUtils.AssertRetOk(NativeMethods.rcl_wait_set_fini(ref waitSet));
@@ -473,7 +473,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void WaitSetClear()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             rcl_wait_set_t waitSet = NativeMethods.rcl_get_zero_initialized_wait_set();
             NativeMethods.rcl_wait_set_init(ref waitSet, 1, 0, 0, 0, 0, 0, ref context, allocator);
             TestUtils.AssertRetOk(NativeMethods.rcl_wait_set_clear(ref waitSet));
@@ -548,7 +548,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void CreateClock()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             IntPtr clockHandle = NativeMethods.rclcs_ros_clock_create(ref allocator);
             NativeMethods.rclcs_ros_clock_dispose(clockHandle);
         }
@@ -556,7 +556,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void ClockGetNow()
         {
-            rcl_allocator_t allocator = NativeMethods.rcl_get_default_allocator();
+            rcl_allocator_t allocator = NativeMethods.rcutils_get_default_allocator();
             IntPtr clockHandle = NativeMethods.rclcs_ros_clock_create(ref allocator);
             long queryNow = 0;
             NativeMethods.rcl_clock_get_now(clockHandle, ref queryNow);
