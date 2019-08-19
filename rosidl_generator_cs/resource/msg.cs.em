@@ -32,6 +32,11 @@ from rosidl_generator_c import idl_type_to_c
 message_class = message.structure.namespaced_type.name
 message_class_lower = message_class.lower()
 c_full_name = idl_type_to_c(message.structure.namespaced_type)
+parent_interfaces = "IRclcsMessage"
+header_type = "std_msgs.msg.Header"
+for member in message.structure.members:
+  if get_dotnet_type(member.type) == header_type:
+    parent_interfaces += " , IMessageWithHeader"
 }
 
 @[for ns in message.structure.namespaced_type.namespaces]@
@@ -39,7 +44,7 @@ namespace @(ns)
 {
 @[end for]@
 // message class
-public class @(message_class) : IRclcsMessage
+public class @(message_class) : @(parent_interfaces)
 {
   private IntPtr handle;
   private bool disposed;
@@ -55,6 +60,26 @@ public class @(message_class) : IRclcsMessage
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, (BasicType, AbstractGenericString, NamedType, NamespacedType))]@
   public @(get_dotnet_type(member.type)) @(get_field_name(member.type, member.name, message_class)) { get; set; }
+@[    if get_dotnet_type(member.type) == header_type]@
+
+  //Generic interface for all messages with headers
+  public void SetHeaderFrame(string frameID)
+  {
+    @(get_field_name(member.type, member.name, message_class)).Frame_id = frameID;
+  }
+
+  public string GetHeaderFrame()
+  {
+    return @(get_field_name(member.type, member.name, message_class)).Frame_id;
+  }
+
+  public void UpdateHeaderTime(int sec, uint nanosec)
+  {
+    @(get_field_name(member.type, member.name, message_class)).Stamp.Sec = sec;
+    @(get_field_name(member.type, member.name, message_class)).Stamp.Nanosec = nanosec;
+  }
+
+@[    end if]@
 @[  elif isinstance(member.type,AbstractSequence)]@
 @[     if isinstance(member.type.value_type, (BasicType, NamespacedType, NamedType))]@
 @# same for now

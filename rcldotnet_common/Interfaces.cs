@@ -19,13 +19,21 @@ namespace ROS2 {
   namespace Interfaces {
     public interface IMessageStruct { }
 
+    public interface IMessageWithHeader
+    {
+      //An utility interface for messages with header
+      void SetHeaderFrame(string frameID);
+      string GetHeaderFrame();
+      void UpdateHeaderTime(int sec, uint nanosec);
+    }
+
     public interface IRclcsMessage: System.IDisposable
     {
       //TODO - these methods shouldn't be exposed outside of library
       IntPtr Handle { get; }
       IntPtr TypeSupportHandle { get; }
       void ReadNativeMessage();
-      void WriteNativeMessage();           
+      void WriteNativeMessage();
     }
 
     // rosidl

@@ -6,6 +6,13 @@ find_package(ament_cmake REQUIRED)
 find_package(rcldotnet REQUIRED)
 find_package(rcldotnet_common REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rwmsgs REQUIRED)
+find_package(apm_msgs REQUIRED)
+find_package(apm_sensor_msgs REQUIRED)
+find_package(simulation_msgs REQUIRED)
 find_package(dotnet_cmake_module REQUIRED)
 find_package(rosidl_generator_cs REQUIRED)
 
@@ -16,6 +23,12 @@ set(_assemblies_dep_dlls
     ${rcldotnet_common_ASSEMBLIES_DLL}
     ${rcldotnet_ASSEMBLIES_DLL}
     ${std_msgs_ASSEMBLIES_DLL}
+    ${geometry_msgs_ASSEMBLIES_DLL}
+    ${nav_msgs_ASSEMBLIES_DLL}
+    ${rwmsgs_ASSEMBLIES_DLL}
+    ${simulation_msgs_ASSEMBLIES_DLL}
+    ${apm_msgs_ASSEMBLIES_DLL}
+    ${apm_sensor_msgs_ASSEMBLIES_DLL}
     ${rosidl_generator_ASSEMBLIES_DLL}
 )
 

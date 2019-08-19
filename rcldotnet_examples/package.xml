@@ -18,12 +18,24 @@
   <build_depend>rcldotnet</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>rwmsgs</build_depend>
+  <build_depend>simulation_msgs</build_depend>
+  <build_depend>apm_sensor_msgs</build_depend>
+  <build_depend>apm_msgs</build_depend>
 
   <exec_depend>rcldotnet_common</exec_depend>
   <exec_depend>example_interfaces</exec_depend>
   <exec_depend>rcldotnet</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>rwmsgs</exec_depend>
+  <exec_depend>simulation_msgs</exec_depend>
+  <exec_depend>apm_sensor_msgs</exec_depend>
+  <exec_depend>apm_msgs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
