@@ -15,13 +15,13 @@
   <ItemGroup>
     <ProjectReference Include="..\rcldotnet\rcldotnet.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Reference Include="std_msgs">
-      <HintPath>../../../../install/rcldotnet_tests/lib/rcldotnet_tests/dotnet/std_msgs_assembly.dll</HintPath>
+      <HintPath>../../../../install/Lib/dotnet/std_msgs_assembly.dll</HintPath>
     </Reference>
     <Reference Include="test_msgs">
-      <HintPath>../../../../install/rcldotnet_tests/lib/rcldotnet_tests/dotnet/test_msgs_assembly.dll</HintPath>
+      <HintPath>../../../../install/Lib/dotnet/test_msgs_assembly.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
