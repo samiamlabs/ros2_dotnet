@@ -23,6 +23,7 @@ from rosidl_parser.definition import NamedType
 from rosidl_parser.definition import OCTET_TYPE
 from rosidl_parser.definition import UNSIGNED_INTEGER_TYPES
 from rosidl_generator_c import idl_type_to_c
+from rosidl_cmake import convert_camel_case_to_lower_case_underscore
 }@
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @# Handle namespaces
@@ -30,7 +31,7 @@ from rosidl_generator_c import idl_type_to_c
 
 @{
 message_class = message.structure.namespaced_type.name
-message_class_lower = message_class.lower()
+message_class_lower = convert_camel_case_to_lower_case_underscore(message_class)
 c_full_name = idl_type_to_c(message.structure.namespaced_type)
 parent_interfaces = "IRclcsMessage"
 header_type = "std_msgs.msg.Header"
