@@ -3,7 +3,7 @@ ROS2 for .NET
 
 [![CircleCI](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing.svg?style=svg)](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing)
 
-ROS2 C# client library implementations
+ROS2 C# client library implementation. To my knowledge the most advanced ros2 C# project. 
 
 Notice
 ------
