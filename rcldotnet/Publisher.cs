@@ -30,12 +30,15 @@ namespace rclcs
 
         private bool disposed;
 
-        public Publisher(string topic, Node node)
+        public Publisher(string topic, Node node, QualityOfServiceProfile qos = null)
         {
             nodeHandle = node.handle;
             handle = NativeMethods.rcl_get_zero_initialized_publisher();
             IntPtr publisherOptions = NativeMethods.rclcs_publisher_create_default_options();
-            //TODO(samiam): Figure out why System.Reflection is not available 
+            int qosProfileRmw = qos == null ? (int)QosProfiles.DEFAULT : (int)qos.Profile;
+            NativeMethods.rclcs_publisher_set_qos_profile(publisherOptions, qosProfileRmw);
+
+            //TODO(samiam): Figure out why System.Reflection is not available
             //when building with colcon/xtool on ubuntu 18.04 and mono 4.5
 
             //MethodInfo m = typeof(T).GetTypeInfo().GetDeclaredMethod("_GET_TYPE_SUPPORT");
@@ -44,9 +47,9 @@ namespace rclcs
             IRclcsMessage msg = new T();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             Utils.CheckReturnEnum(NativeMethods.rcl_publisher_init(
-                                    ref handle, 
-                                    ref nodeHandle, 
-                                    typeSupportHandle, 
+                                    ref handle,
+                                    ref nodeHandle,
+                                    typeSupportHandle,
                                     topic,
                                     publisherOptions));
         }

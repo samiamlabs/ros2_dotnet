@@ -106,11 +106,11 @@ namespace rclcs
             Utils.CheckReturnEnum(NativeMethods.rcl_node_fini(ref handle));
             NativeMethods.rclcs_node_dispose_options(defaultNodeOptions);
         }
-       
 
-        public Publisher<T> CreatePublisher<T>(string topic) where T : IRclcsMessage, new()
+
+        public Publisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : IRclcsMessage, new()
         {
-            Publisher<T> publisher = new Publisher<T>(topic, this);
+            Publisher<T> publisher = new Publisher<T>(topic, this, qos);
             publishers.Add(publisher);
             return publisher;
         }
@@ -131,4 +131,3 @@ namespace rclcs
 
 
 }
-

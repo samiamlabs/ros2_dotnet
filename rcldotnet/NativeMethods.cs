@@ -461,6 +461,16 @@ namespace rclcs
             "rclcs_subscription_set_qos_profile"),
             typeof(SubscriptionSetQosProfile));
 
+        // rclcs_subscription_set_qos_profile
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void PublisherSetQosProfile(IntPtr publisher_options, int profile);
+        internal static PublisherSetQosProfile
+            rclcs_publisher_set_qos_profile =
+            (PublisherSetQosProfile)Marshal.GetDelegateForFunctionPointer(dllLoadUtils.GetProcAddress(
+            nativeRclcs,
+            "rclcs_publisher_set_qos_profile"),
+            typeof(PublisherSetQosProfile));
+
         // rclcs_ros_clock_create
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr RclcsClockCreate(ref rcl_allocator_t allocator_handle);

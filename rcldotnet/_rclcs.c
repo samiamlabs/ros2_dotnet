@@ -139,6 +139,32 @@ void rclcs_subscription_set_qos_profile(rcl_subscription_options_t * subscriptio
 }
 
 ROSIDL_GENERATOR_C_EXPORT
+void rclcs_publisher_set_qos_profile(rcl_publisher_options_t * publisher_options, int profile)
+{
+  switch(profile)
+  {
+    case 0:
+      publisher_options->qos = rmw_qos_profile_sensor_data;
+      break;
+    case 1:
+      publisher_options->qos = rmw_qos_profile_parameters;
+      break;
+    case 2:
+      publisher_options->qos = rmw_qos_profile_default;
+      break;
+    case 3:
+      publisher_options->qos = rmw_qos_profile_services_default;
+      break;
+    case 4:
+      publisher_options->qos = rmw_qos_profile_parameter_events;
+      break;
+    case 5:
+      publisher_options->qos = rmw_qos_profile_system_default;
+      break;
+  }
+}
+
+ROSIDL_GENERATOR_C_EXPORT
 rcl_clock_t * rclcs_ros_clock_create(rcl_allocator_t * allocator_handle)
 {
   rcl_clock_t  * clock_handle = (rcl_clock_t *)malloc(sizeof(rcl_clock_t));
