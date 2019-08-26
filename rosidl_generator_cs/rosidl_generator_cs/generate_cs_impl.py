@@ -152,7 +152,8 @@ BASIC_IDL_TYPES_TO_MARSHAL = {
     'uint32': 'U4',
     'int32': 'I4',
     'uint64': 'U8',
-    'int64': 'I8'
+    'int64': 'I8',
+    'string': 'LPStr'
 }
 
 BASIC_IDL_TYPES_TO_MARSHAL_ARRAY = {
@@ -170,18 +171,23 @@ BASIC_IDL_TYPES_TO_MARSHAL_ARRAY = {
     'uint32': 'int',
     'int32': 'int',
     'uint64': 'long',
-    'int64': 'long'
+    'int64': 'long',
+    'string': 'IntPtr'
 }
 
 
 def get_marshal_type(type_):
     if isinstance(type_, BasicType):
         return BASIC_IDL_TYPES_TO_MARSHAL[type_.typename]
+    if isinstance(type_, AbstractString):
+        return BASIC_IDL_TYPES_TO_MARSHAL['string']
     assert False, "unsupported marshal type '%s'" % type_
 
 
 def get_marshal_array_type(type_):
     if isinstance(type_, AbstractSequence):
+        if isinstance(type_.value_type, AbstractString):
+            return BASIC_IDL_TYPES_TO_MARSHAL_ARRAY['string']
         return BASIC_IDL_TYPES_TO_MARSHAL_ARRAY[type_.value_type.typename]
     assert False, "unsupported marshal array type '%s'" % type_
 

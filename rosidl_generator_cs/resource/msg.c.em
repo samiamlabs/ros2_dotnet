@@ -15,6 +15,7 @@
 from rosidl_generator_c import idl_type_to_c
 from rosidl_generator_c import idl_structure_type_to_c_typename
 from rosidl_cmake import convert_camel_case_to_lower_case_underscore
+from rosidl_parser.definition import AbstractString
 from rosidl_parser.definition import AbstractGenericString
 from rosidl_parser.definition import BasicType
 from rosidl_parser.definition import NamespacedType
@@ -38,7 +39,7 @@ have_not_included_arrays = True
 #include <@(include_path)__struct.h>
 #include <@(include_path)__functions.h>
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, AbstractGenericString) and have_not_included_string]@
+@[  if isinstance(member.type, AbstractGenericString) or (isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, AbstractString)) and have_not_included_string]@
 @{have_not_included_string = False}@
 #include <rosidl_generator_c/string.h>
 #include <rosidl_generator_c/string_functions.h>
@@ -114,6 +115,30 @@ ROSIDL_GENERATOR_C_EXPORT
 
 
 @[for member in message.structure.members]@
+@[  if isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, AbstractString)]@
+ROSIDL_GENERATOR_C_EXPORT
+bool @(msg_typename)_native_write_field_@(member.name)(char *value, int index, void *message_handle)
+{
+  @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
+  rosidl_generator_c__String__assign(&ros_message->@(member.name).data[index], value);
+  return true;
+}
+@[  end if]@
+@[end for]@
+
+@[for member in message.structure.members]@
+@[  if isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, AbstractString)]@
+ROSIDL_GENERATOR_C_EXPORT
+char *@(msg_typename)_native_read_field_@(member.name)(int index, void *message_handle)
+{
+  @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
+  return ros_message->@(member.name).data[index].data;
+}
+@[  end if]@
+@[end for]@
+
+
+@[for member in message.structure.members]@
 @[if isinstance(member.type, (NamedType, NamespacedType))]
 @{
 n_type = get_c_type(member.type.name) if isinstance(member.type, NamedType) else idl_structure_type_to_c_typename(member.type)
@@ -129,10 +154,11 @@ void * @(msg_typename)_native_get_nested_message_handle_@(member.name)(void *mes
 @[end for]@
 
 @[for member in message.structure.members]@
-@[  if isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType))]@
+@[  if isinstance(member.type, AbstractSequence) and isinstance(member.type.value_type, (NamedType, NamespacedType, AbstractString))]@
 @{
-n_type = get_c_type(member.type.value_type.name) if isinstance(member.type.value_type, NamedType) else idl_structure_type_to_c_typename(member.type.value_type)
+n_type = get_c_type(member.type.value_type.name) if isinstance(member.type.value_type, (NamedType)) else idl_structure_type_to_c_typename(member.type.value_type) if isinstance(member.type.value_type, NamespacedType) else idl_type_to_c(member.type.value_type)
 }
+@[    if isinstance(member.type.value_type, (NamedType, NamespacedType))]@
 ROSIDL_GENERATOR_C_EXPORT
 void * @(msg_typename)_native_get_nested_message_handle_@(member.name)(void *message_handle, int index)
 {
@@ -140,6 +166,7 @@ void * @(msg_typename)_native_get_nested_message_handle_@(member.name)(void *mes
   @(n_type) *nested_message = &(ros_message->@(member.name).data[index]); //TODO - assert size!
   return (void *)nested_message;
 }
+@[    end if]@
 
 ROSIDL_GENERATOR_C_EXPORT
 int @(msg_typename)_native_get_array_size_@(member.name)(void *message_handle)
