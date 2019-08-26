@@ -32,7 +32,9 @@ class UnityROS2LibCopier:
             'sensor_msgs',
             'tf2_msgs',
             'nav_msgs',
-            'test_msgs'
+            'test_msgs',
+            'action_msgs',
+            'unique_identifier_msgs',
         ]
 
         self.dependencies = [
