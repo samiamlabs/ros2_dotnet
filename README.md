@@ -3,16 +3,19 @@ ROS2 for .NET
 
 [![CircleCI](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing.svg?style=svg)](https://circleci.com/gh/samiamlabs/ros2_dotnet/tree/dashing)
 
-TODO - update README. This works a bit for Dashing now - examples of talker and listener and message generation. (lots to do still)
-
-See Projects page for what tasks and contributions are needed.
+ROS2 C# client library implementations
 
 Notice
 ------
 
-This fork replaces https://github.com/esteve/ros2_dotnet/ implementation of rclcs with an improved version from https://github.com/DynoRobotics/unity_ros2, and includes some of my own fixes and changes, and a body of my original work porting the entire thing to Dashing and changing things to my preference. Since the fork contains rather revolutionary, large changes and includes a body of third person's work, it needs plenty of effort to integrate with the ros2_dotnet main.
+This fork started with https://github.com/esteve/ros2_dotnet/ implementation of rclcs with and integrated improvements from https://github.com/DynoRobotics/unity_ros2. Since then, plenty of features and fixes have been added, including:
+*  Target version of ROS2 is now Dashing. This includes significant changes in message generation introduced between Crystal and Dashing
+*  Added support for Nested types, Namespaced types and Sequences (basically you can use almost all standard messages).
+*  Support for Header abstraction (MessageWithHeader interface), allowing polymorphic handling of generated messages.
+*  Multiple other bug fixes and improvements in the library.
+*  Resolved issues with the Unity libraries loading.
 
-I did this for my own purpose, but if someone is interested, here it is. I also only test the project with existing Dashing installation, in a minimal build. Please refer to original projects and their README.
+Since the fork contains rather revolutionary, large changes and includes a body of third person's work, it would need plenty of effort to integrate with the ros2_dotnet main.
 
 Linux
 -----
@@ -24,7 +27,7 @@ mkdir -p ~/ros2_dotnet_ws/src
 cd ~/ros2_dotnet_ws
 wget https://raw.githubusercontent.com/adamdbrw/ros2_dotnet/master/ros2_dotnet_dashing.repos
 vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_dashing.repos
-colcon build
+colcon build --merge-install
 
 ```
 Running. Source install/setup.bash in both terminals:
@@ -43,3 +46,9 @@ Testing. Source install/setup.bash in terminal and change directory to rcldotnet
 ```
 dotnet watch test
 ```
+
+Contribution
+------
+
+See Projects page for what tasks and contributions are needed.
+
