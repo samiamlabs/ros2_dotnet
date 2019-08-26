@@ -137,7 +137,6 @@ char *@(msg_typename)_native_read_field_@(member.name)(int index, void *message_
 @[  end if]@
 @[end for]@
 
-
 @[for member in message.structure.members]@
 @[if isinstance(member.type, (NamedType, NamespacedType))]
 @{

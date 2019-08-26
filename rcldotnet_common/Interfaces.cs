@@ -17,25 +17,28 @@ using System;
 
 namespace ROS2 {
   namespace Interfaces {
-    public interface IMessageStruct { }
 
-    public interface IMessageWithHeader
+    //TODO - handle interfaces so there is not too much exposed on the library user side
+    public interface IMessageInternals : System.IDisposable
     {
-      //An utility interface for messages with header
-      void SetHeaderFrame(string frameID);
-      string GetHeaderFrame();
-      void UpdateHeaderTime(int sec, uint nanosec);
-    }
-
-    public interface IRclcsMessage: System.IDisposable
-    {
-      //TODO - these methods shouldn't be exposed outside of library
       IntPtr Handle { get; }
       IntPtr TypeSupportHandle { get; }
       void ReadNativeMessage();
       void WriteNativeMessage();
       void ReadNativeMessage(IntPtr handle);
       void WriteNativeMessage(IntPtr handle);
+    }
+
+    public interface Message : IMessageInternals
+    {
+    }
+
+    public interface MessageWithHeader : Message
+    {
+      //An utility interface for messages with header
+      void SetHeaderFrame(string frameID);
+      string GetHeaderFrame();
+      void UpdateHeaderTime(int sec, uint nanosec);
     }
 
     // rosidl

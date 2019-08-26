@@ -33,11 +33,11 @@ from rosidl_cmake import convert_camel_case_to_lower_case_underscore
 message_class = message.structure.namespaced_type.name
 message_class_lower = convert_camel_case_to_lower_case_underscore(message_class)
 c_full_name = idl_type_to_c(message.structure.namespaced_type)
-parent_interfaces = "IRclcsMessage"
+parent_interface = "Message"
 header_type = "std_msgs.msg.Header"
 for member in message.structure.members:
   if get_dotnet_type(member.type) == header_type:
-    parent_interfaces += " , IMessageWithHeader"
+    parent_interface = "MessageWithHeader"
 }
 
 @[for ns in message.structure.namespaced_type.namespaces]@
@@ -45,7 +45,7 @@ namespace @(ns)
 {
 @[end for]@
 // message class
-public class @(message_class) : @(parent_interfaces)
+public class @(message_class) : @(parent_interface)
 {
   private IntPtr _handle;
   private bool disposed;
@@ -241,7 +241,7 @@ public class @(message_class) : @(parent_interfaces)
     }
   }
 
-  // Handle
+  // Handle. Create on first use. Can be set for nested classes. TODO -- access...
   public IntPtr Handle
   {
     get

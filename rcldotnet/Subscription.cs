@@ -20,8 +20,8 @@ using ROS2.Interfaces;
 namespace rclcs
 {
 
-    public class Subscription<T>: ISubscription<T> 
-        where T : IRclcsMessage, new ()
+    public class Subscription<T>: ISubscription<T>
+        where T : Message, new ()
     {
         private rcl_subscription_t handle;
         rcl_node_t nodeHandle;
@@ -35,12 +35,12 @@ namespace rclcs
 
         private bool disposed;
 
-        public IRclcsMessage CreateMessage()
+        public Message CreateMessage()
         {
-            return (IRclcsMessage)new T(); ;
+            return (Message)new T();
         }
 
-        public void TriggerCallback(IRclcsMessage message)
+        public void TriggerCallback(Message message)
         {
             message.ReadNativeMessage();
             callback((T)message);
@@ -65,12 +65,12 @@ namespace rclcs
             //FIXME(sam): was not able to use a c# struct as qos profile, figure out why and replace the following hack...
             NativeMethods.rclcs_subscription_set_qos_profile(subscriptionOptions, (int)qualityOfServiceProfile.Profile);
 
-            //TODO(sam): Figure out why System.Reflection is not available 
+            //TODO(sam): Figure out why System.Reflection is not available
             //when building with colcon/xtool on ubuntu 18.04 and mono 4.5
             //MethodInfo m = typeof(T).GetTypeInfo().GetDeclaredMethod("_GET_TYPE_SUPPORT");
             //IntPtr typeSupportHandle = (IntPtr)m.Invoke(null, new object[] { });
 
-            IRclcsMessage msg = new T();
+            IMessageInternals msg = new T();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             msg.Dispose();
 
