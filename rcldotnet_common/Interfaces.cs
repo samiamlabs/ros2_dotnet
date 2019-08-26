@@ -34,6 +34,8 @@ namespace ROS2 {
       IntPtr TypeSupportHandle { get; }
       void ReadNativeMessage();
       void WriteNativeMessage();
+      void ReadNativeMessage(IntPtr handle);
+      void WriteNativeMessage(IntPtr handle);
     }
 
     // rosidl

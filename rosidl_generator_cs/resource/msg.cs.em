@@ -46,9 +46,8 @@ namespace @(ns)
 // message class
 public class @(message_class) : @(parent_interfaces)
 {
-  private IntPtr handle;
+  private IntPtr _handle;
   private bool disposed;
-  private bool isTopLevelMsg;
   private static readonly DllLoadUtils dllLoadUtils;
 
   // constant declarations
@@ -228,33 +227,35 @@ public class @(message_class) : @(parent_interfaces)
     }
   }
 
+  // Handle
+  public IntPtr Handle
+  {
+    get
+    {
+      if (_handle == IntPtr.Zero)
+        _handle = native_create_native_message();
+      return _handle;
+    }
+  }
+
   public @(message_class)()
-  {
-    isTopLevelMsg = true;
-    handle = native_create_native_message();
-    SetNestedHandles();
-  }
-
-  // internal constructor for nested types
-  // TODO (adam) - can't be internal currently, e.g. rcl_interfaces log.cs uses builtin_interfaces time.cs
-  public @(message_class)(IntPtr handle)
-  {
-    this.handle = handle;
-    SetNestedHandles();
-  }
-
-  private void SetNestedHandles()
   {
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, (NamedType, NamespacedType))]@
-    @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type))(native_get_nested_message_handle_@(member.name)(handle));
+    @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type))();
 @[  end if]@
 @[end for]@
   }
 
-  //TODO (adamdbrw): bad design. One has to call the constructor, extract the handle and modify it outside with rcl_take
   public void ReadNativeMessage()
   {
+    ReadNativeMessage(Handle);
+  }
+
+  public void ReadNativeMessage(IntPtr handle)
+  {
+    if (handle == IntPtr.Zero)
+      handle = Handle;
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, AbstractString)]@
     {
@@ -286,21 +287,28 @@ public class @(message_class) : @(parent_interfaces)
       @(get_field_name(member.type, member.name, message_class)) = new @(get_dotnet_type(member.type.value_type))[__native_array_size];
       for (int i = 0; i < __native_array_size; ++i)
       {
-        @(get_field_name(member.type, member.name, message_class))[i] = new @(get_dotnet_type(member.type.value_type))(native_get_nested_message_handle_@(member.name)(handle, i));
-        @(get_field_name(member.type, member.name, message_class))[i].ReadNativeMessage();
+        @(get_field_name(member.type, member.name, message_class))[i] = new @(get_dotnet_type(member.type.value_type))();
+        @(get_field_name(member.type, member.name, message_class))[i].ReadNativeMessage(native_get_nested_message_handle_@(member.name)(handle, i));
       }
     }
     @[  elif isinstance(member.type, BasicType)]@
     @(get_field_name(member.type, member.name, message_class)) = native_read_field_@(member.name)(handle);
 @[  elif isinstance(member.type, (NamedType, NamespacedType))]@
-    @(get_field_name(member.type, member.name, message_class)).ReadNativeMessage();
+    @(get_field_name(member.type, member.name, message_class)).ReadNativeMessage(native_get_nested_message_handle_@(member.name)(handle));
 @[  end if]@
 @[end for]@
   }
 
-  //Write from CS to native handle
   public void WriteNativeMessage()
   {
+    WriteNativeMessage(Handle);
+  }
+
+  //Write from CS to native handle
+  public void WriteNativeMessage(IntPtr handle)
+  {
+    if (handle == IntPtr.Zero)
+      handle = Handle;
 @[for member in message.structure.members]@
 @[  if isinstance(member.type, (BasicType, AbstractGenericString))]@
     native_write_field_@(member.name)(handle, @(get_field_name(member.type, member.name, message_class)));
@@ -315,22 +323,23 @@ public class @(message_class) : @(parent_interfaces)
       //TODO - check success
       for (int i = 0; i < @(get_field_name(member.type, member.name, message_class)).Length; ++i)
       {
-        @(get_field_name(member.type, member.name, message_class))[i].WriteNativeMessage();
+        @(get_field_name(member.type, member.name, message_class))[i].WriteNativeMessage(native_get_nested_message_handle_@(member.name)(handle, i));
       }
     }
 @[  elif isinstance(member.type, (NamedType, NamespacedType))]@
-    @(get_field_name(member.type, member.name, message_class)).WriteNativeMessage();
+    @(get_field_name(member.type, member.name, message_class)).WriteNativeMessage(native_get_nested_message_handle_@(member.name)(handle));
 @[  end if]@
 @[end for]@
   }
 
   public void Dispose()
   {
-    if(!disposed)
+    if (!disposed)
     {
-      if(isTopLevelMsg)
+      if (_handle != IntPtr.Zero)
       {
-        native_destroy_native_message(handle);
+        native_destroy_native_message(_handle);
+        _handle = IntPtr.Zero;
         disposed = true;
       }
     }
@@ -341,14 +350,6 @@ public class @(message_class) : @(parent_interfaces)
     Dispose();
   }
 
-  // Handle
-  public IntPtr Handle
-  {
-    get
-    {
-      return handle;
-    }
-  }
 };  // class @(message_class)
 @#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @# close namespaces
