@@ -5,6 +5,7 @@ import logging
 import shutil
 import platform
 import pkg_resources
+import stat
 
 from ament_index_python import get_package_prefix
 from ament_index_python.packages import PackageNotFoundError
@@ -24,6 +25,7 @@ class UnityROS2LibCopier:
             'rosidl_typesupport_c',
             'rosidl_typesupport_fastrtps_c',
             'rosidl_typesupport_fastrtps_cpp',
+            'rcl_logging_noop',
             'builtin_interfaces',
             'rcutils',
             'rcldotnet',
@@ -70,16 +72,16 @@ class UnityROS2LibCopier:
                     os.path.join(package_install_path, os.pardir))
 
                 if platform.system() == 'Windows':
-                    filename_extension = '.dll'
+                    filename_extensions = ('.dll')
                     lib_folder = '/bin'
                     package_lib_path = package_install_path + lib_folder
                 else:
-                    filename_extension = '.so'
+                    filename_extensions = ('.so', '.so.1', 'so.2')
                     lib_folder = '/lib'
                     package_lib_path = package_install_path + lib_folder
 
                 for c_lib_file in os.listdir(package_lib_path):
-                    if c_lib_file.endswith(filename_extension):
+                    if c_lib_file.endswith(filename_extensions):
                         self.c_lib_source_dict[c_lib_file] = (
                             package_lib_path + '/' + c_lib_file)
 
@@ -88,13 +90,14 @@ class UnityROS2LibCopier:
                 for non_ros_package in self.dependencies:
                     if non_ros_package in os.listdir(package_install_parent_directory):
                         lib_path = package_install_parent_directory + '/' + non_ros_package + lib_folder
-                        try:
-                            for c_lib_file in os.listdir(lib_path):
-                                if c_lib_file.endswith(filename_extension):
-                                    self.c_lib_source_dict[c_lib_file] = (
-                                        lib_path + '/' + c_lib_file)
-                        except PackageNotFoundError:
-                            pass
+                        if os.path.isdir(lib_path):
+                            try:
+                                for c_lib_file in os.listdir(lib_path):
+                                    if c_lib_file.endswith(filename_extensions):
+                                        self.c_lib_source_dict[c_lib_file] = (
+                                            lib_path + '/' + c_lib_file)
+                            except PackageNotFoundError:
+                                pass
 
             except PackageNotFoundError:
                 print('{} not found!'.format(package_name))
@@ -173,9 +176,17 @@ def copy_unity_files(unity_project_path):
     if platform.system() == 'Windows':
         source_path = unity_files_path + '/start_editor.bat'
         destination_path = asset_path + '/start_editor.bat'
-        if should_copy_file(source_path, destination_path):
-            logging.info('Copying start_editor.bat')
-            shutil.copy2(source_path, asset_path)
+    else:
+        source_path = unity_files_path + '/start_editor.bash'
+        destination_path = asset_path + '/start_editor.bash'
+    if should_copy_file(source_path, destination_path):
+        logging.info('Copying start_editor script')
+        shutil.copy2(source_path, asset_path)
+
+    if platform.system() == 'Linux':
+        logging.info('Making script executable')
+        st = os.stat(destination_path)
+        os.chmod(destination_path, st.st_mode | stat.S_IEXEC)
 
 
 def main():
