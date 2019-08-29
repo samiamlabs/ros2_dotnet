@@ -185,7 +185,7 @@ def get_marshal_type(type_):
 
 
 def get_marshal_array_type(type_):
-    if isinstance(type_, AbstractSequence):
+    if isinstance(type_, (AbstractSequence, Array)):
         if isinstance(type_.value_type, AbstractString):
             return BASIC_IDL_TYPES_TO_MARSHAL_ARRAY['string']
         return BASIC_IDL_TYPES_TO_MARSHAL_ARRAY[type_.value_type.typename]
