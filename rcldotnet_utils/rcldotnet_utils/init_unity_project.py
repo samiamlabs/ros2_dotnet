@@ -164,14 +164,36 @@ def directory_is_a_unity_project(dir_path):
 def copy_unity_files(unity_project_path):
     unity_files_path = pkg_resources.resource_filename('rcldotnet_utils',
                                                        'unity_files')
+
     asset_path = unity_project_path + '/Assets'
+
+    unity_resource_path = asset_path + '/Resources'
+    if not os.path.isdir(unity_resource_path):
+        try:
+            os.makedirs(unity_resource_path)
+        except OSError:
+            logging.error('Failed to create directory {}'.format(
+                unity_resource_path))
+        else:
+            logging.info('Successfully created the directory {}'.format(
+                unity_resource_path))
+
+    unity_editor_scripts_path = asset_path + '/Editor/ROS'
+    if not os.path.isdir(unity_editor_scripts_path):
+        try:
+            os.makedirs(unity_editor_scripts_path)
+        except OSError:
+            logging.error('Failed to create directory {}'.format(
+                unity_editor_scripts_path))
+        else:
+            logging.info('Successfully created the directory {}'.format(
+                unity_editor_scripts_path))
 
     source_path = unity_files_path + '/start_editor.py'
     destination_path = asset_path + '/start_editor.py'
-
     if should_copy_file(source_path, destination_path):
         logging.info('Copying start_editor.py')
-        shutil.copy2(source_path, asset_path)
+        shutil.copy2(source_path, destination_path)
 
     if platform.system() == 'Windows':
         source_path = unity_files_path + '/start_editor.bat'
@@ -181,12 +203,39 @@ def copy_unity_files(unity_project_path):
         destination_path = asset_path + '/start_editor.bash'
     if should_copy_file(source_path, destination_path):
         logging.info('Copying start_editor script')
-        shutil.copy2(source_path, asset_path)
+        shutil.copy2(source_path, destination_path)
 
     if platform.system() == 'Linux':
-        logging.info('Making script executable')
+        logging.info('Making editor script executable')
         st = os.stat(destination_path)
         os.chmod(destination_path, st.st_mode | stat.S_IEXEC)
+
+    source_path = unity_files_path + '/start_player.py'
+    destination_path = unity_resource_path + '/start_player.py'
+    if should_copy_file(source_path, destination_path):
+        logging.info('Copying start_player.py')
+        shutil.copy2(source_path, destination_path)
+
+    if platform.system() == 'Windows':
+        source_path = unity_files_path + '/start_player.bat'
+        destination_path = unity_resource_path + '/start_player.bat'
+    else:
+        source_path = unity_files_path + '/start_player.bash'
+        destination_path = unity_resource_path + '/start_player.bash'
+    if should_copy_file(source_path, destination_path):
+        logging.info('Copying start_player script')
+        shutil.copy2(source_path, destination_path)
+
+    if platform.system() == 'Linux':
+        logging.info('Making player script executable')
+        st = os.stat(destination_path)
+        os.chmod(destination_path, st.st_mode | stat.S_IEXEC)
+
+    source_path = unity_files_path + '/BuildRos.cs'
+    destination_path = unity_editor_scripts_path + '/BuildRos.cs'
+    if should_copy_file(source_path, destination_path):
+        logging.info('Copying BuildRos.cs')
+        shutil.copy2(source_path, destination_path)
 
 
 def main():
