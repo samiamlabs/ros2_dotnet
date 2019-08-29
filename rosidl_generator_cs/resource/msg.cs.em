@@ -251,8 +251,6 @@ public class @(message_class) : @(parent_interface)
   {
     get
     {
-      if (_handle == IntPtr.Zero)
-        _handle = native_create_native_message();
       return _handle;
     }
   }
@@ -333,6 +331,14 @@ public class @(message_class) : @(parent_interface)
 
   public void WriteNativeMessage()
   {
+    if (_handle == IntPtr.Zero)
+      _handle = native_create_native_message();
+    else
+    { //message object reused for subsequent publishing (fields could have changed, and we want to avoid double init on sequences)
+      //native_destroy_native_message(_handle)
+      //handle = native_create_native_message();
+      //This is handled by checking sequence size internally
+    }
     WriteNativeMessage(Handle);
   }
 
