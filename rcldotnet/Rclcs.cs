@@ -62,7 +62,7 @@ namespace rclcs
 
             foreach(ISubscriptionBase subscription in node.Subscriptions)
             {
-                IRclcsMessage message = subscription.CreateMessage();
+                Message message = subscription.CreateMessage();
                 bool gotMessage = Take(subscription, message);
 
                 if (gotMessage)
@@ -73,7 +73,7 @@ namespace rclcs
 
         }
 
-        public static bool Take(ISubscriptionBase subscription, IRclcsMessage message)
+        public static bool Take(ISubscriptionBase subscription, Message message)
         {
             rcl_subscription_t subscription_handle = subscription.Handle;
             IntPtr message_handle = message.Handle;

@@ -21,7 +21,7 @@ using ROS2.Interfaces;
 namespace rclcs
 {
 
-    public class Publisher<T>: IPublisher<T> where T : IRclcsMessage, new ()
+    public class Publisher<T>: IPublisher<T> where T : Message, new ()
     {
         rcl_publisher_t handle;
         rcl_node_t nodeHandle;
@@ -44,7 +44,7 @@ namespace rclcs
             //MethodInfo m = typeof(T).GetTypeInfo().GetDeclaredMethod("_GET_TYPE_SUPPORT");
             //IntPtr typeSupportHandle = (IntPtr)m.Invoke(null, new object[] { });
 
-            IRclcsMessage msg = new T();
+            IMessageInternals msg = new T();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             Utils.CheckReturnEnum(NativeMethods.rcl_publisher_init(
                                     ref handle,
