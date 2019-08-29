@@ -38,9 +38,7 @@ namespace rclcs.Test
         public void SetStringData()
         {
             std_msgs.msg.String msg = new std_msgs.msg.String();
-            //NOTE(sam): msg.Data now initializes to null and not <string.Empty>, intentional?
-            // Assert.That(msg.Data, Is.EqualTo(""));
-            Assert.That(msg.Data, Is.EqualTo(null));
+            Assert.That(msg.Data, Is.EqualTo(""));
             msg.Data = "Show me what you got!";
             Assert.That(msg.Data, Is.EqualTo("Show me what you got!"));
         }
