@@ -96,8 +96,8 @@ bool @(msg_typename)_native_write_field_@(member.name)(@(get_c_type(member.type.
     return false;
   @(get_c_type(member.type.value_type)) *dest = ros_message->@(member.name);
 @[    elif isinstance(member.type, AbstractSequence)]@
-  size_t previous_sequence_size = &ros_message->@(member.name).size;
-  if (previous_sequence_size != size && previous_sequence_size != 0)
+  size_t previous_sequence_size = ros_message->@(member.name).size;
+  if (previous_sequence_size != (size_t)size && previous_sequence_size != 0)
     rosidl_generator_c__@(member.type.value_type.typename)__Sequence__fini(&ros_message->@(member.name));
   if (!rosidl_generator_c__@(member.type.value_type.typename)__Sequence__init(&ros_message->@(member.name), size))
     return false;
@@ -216,8 +216,8 @@ bool @(msg_typename)_native_init_sequence_@(member.name)(void *message_handle, i
   return true;
 @[    else]@
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
-  size_t previous_sequence_size = &ros_message->@(member.name).size;
-  if (previous_sequence_size != size && previous_sequence_size != 0)
+  size_t previous_sequence_size = ros_message->@(member.name).size;
+  if (previous_sequence_size != (size_t)size && previous_sequence_size != 0)
     @(n_type)__Sequence__fini(&ros_message->@(member.name)); //Supports same message reuse
   if (!@(n_type)__Sequence__init(&ros_message->@(member.name), size))
     return false;
