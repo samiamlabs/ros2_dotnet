@@ -251,6 +251,8 @@ public class @(message_class) : @(parent_interface)
   {
     get
     {
+      if (_handle == IntPtr.Zero)
+        _handle = native_create_native_message();
       return _handle;
     }
   }
