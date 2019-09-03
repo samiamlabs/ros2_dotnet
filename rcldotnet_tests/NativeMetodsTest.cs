@@ -29,7 +29,7 @@ namespace rclcs.TestNativeMethods
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
 
             Assert.That(NativeMethods.rcl_context_is_valid(ref context), Is.True);
-            
+
         }
 
         public static void ShutdownRcl(ref rcl_context_t context)
@@ -172,7 +172,7 @@ namespace rclcs.TestNativeMethods
             RCLReturnEnum ret = (RCLReturnEnum)NativeMethods.rcl_node_init(ref node, name, nodeNamespace, ref context, nodeOptions);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK));
         }
-        
+
         public static void ShutdownNode(ref rcl_node_t node, IntPtr nodeOptions)
         {
             NativeMethods.rcl_node_fini(ref node);
@@ -266,7 +266,7 @@ namespace rclcs.TestNativeMethods
             RCLReturnEnum ret;
             publisher = NativeMethods.rcl_get_zero_initialized_publisher();
             publisherOptions = NativeMethods.rclcs_publisher_create_default_options();
-            IRclcsMessage msg = new std_msgs.msg.Bool();
+            IMessageInternals msg = new std_msgs.msg.Bool();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             ret = (RCLReturnEnum)NativeMethods.rcl_publisher_init(ref publisher, ref node, typeSupportHandle, "publisher_test_topic", publisherOptions);
         }
@@ -287,7 +287,7 @@ namespace rclcs.TestNativeMethods
             InitPublisher(ref publisher, ref node, publisherOptions);
             ShutdownPublisher(ref publisher, ref node, publisherOptions);
 
-        } 
+        }
     }
 
     [TestFixture]
@@ -318,7 +318,7 @@ namespace rclcs.TestNativeMethods
             rcl_publisher_t publisher = new rcl_publisher_t();
             IntPtr publisherOptions = new IntPtr();
             PublisherInitialize.InitPublisher(ref publisher, ref node, publisherOptions);
-            IRclcsMessage msg = new std_msgs.msg.Bool();
+            IMessageInternals msg = new std_msgs.msg.Bool();
             ret = (RCLReturnEnum)NativeMethods.rcl_publish(ref publisher, msg.Handle);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
             PublisherInitialize.ShutdownPublisher(ref publisher, ref node, publisherOptions);
@@ -347,7 +347,7 @@ namespace rclcs.TestNativeMethods
             RCLReturnEnum ret;
             subscription = NativeMethods.rcl_get_zero_initialized_subscription();
             subscriptionOptions = NativeMethods.rclcs_subscription_create_default_options();
-            IRclcsMessage msg = new std_msgs.msg.Bool();
+            IMessageInternals msg = new std_msgs.msg.Bool();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             ret = (RCLReturnEnum)NativeMethods.rcl_subscription_init(ref subscription, ref node, typeSupportHandle, "/subscriber_test_topic", subscriptionOptions);
             Assert.That(ret, Is.EqualTo(RCLReturnEnum.RCL_RET_OK), Utils.PopRclErrorString());
@@ -455,7 +455,7 @@ namespace rclcs.TestNativeMethods
         [Test]
         public void GetZeroInitializedWaitSet()
         {
-            // NOTE: The struct rcl_wait_set_t contains size_t 
+            // NOTE: The struct rcl_wait_set_t contains size_t
             // fields that are set to UIntPtr in C# declaration,
             // not guaranteed to work for all C implemenations/platforms.
             rcl_wait_set_t waitSet = NativeMethods.rcl_get_zero_initialized_wait_set();
@@ -511,7 +511,7 @@ namespace rclcs.TestNativeMethods
 
             NativeMethods.rclcs_subscription_set_qos_profile(subscriptionOptions, 0);
 
-            IRclcsMessage msg = new std_msgs.msg.Bool();
+            IMessageInternals msg = new std_msgs.msg.Bool();
             IntPtr typeSupportHandle = msg.TypeSupportHandle;
             NativeMethods.rcl_subscription_init(ref subscription, ref node, typeSupportHandle, "/subscriber_test_topic", subscriptionOptions);
 

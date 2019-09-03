@@ -5,8 +5,8 @@ namespace rclcs
     public interface ISubscriptionBase : System.IDisposable
     {
         rcl_subscription_t Handle { get; }
-        IRclcsMessage CreateMessage();
-        void TriggerCallback(IRclcsMessage message);
+        Message CreateMessage();
+        void TriggerCallback(Message message);
     }
 
 }

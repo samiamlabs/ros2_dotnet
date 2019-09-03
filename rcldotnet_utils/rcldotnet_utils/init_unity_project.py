@@ -73,17 +73,18 @@ class UnityROS2LibCopier:
 
                 if platform.system() == 'Windows':
                     filename_extensions = ('.dll')
-                    lib_folder = '/bin'
+                    lib_folder = '\\bin'
                     package_lib_path = package_install_path + lib_folder
                 else:
                     filename_extensions = ('.so', '.so.1', 'so.2')
                     lib_folder = '/lib'
                     package_lib_path = package_install_path + lib_folder
 
-                for c_lib_file in os.listdir(package_lib_path):
-                    if c_lib_file.endswith(filename_extensions):
-                        self.c_lib_source_dict[c_lib_file] = (
-                            package_lib_path + '/' + c_lib_file)
+                if os.path.isdir(package_lib_path):
+                    for c_lib_file in os.listdir(package_lib_path):
+                        if c_lib_file.endswith(filename_extensions):
+                            self.c_lib_source_dict[c_lib_file] = (
+                                package_lib_path + '/' + c_lib_file)
 
                 # Find ament compiled projects not found by ament_index
                 # by looking in parent folders of ros install directories

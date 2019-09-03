@@ -108,14 +108,14 @@ namespace rclcs
         }
 
 
-        public Publisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : IRclcsMessage, new()
+        public Publisher<T> CreatePublisher<T>(string topic, QualityOfServiceProfile qos = null) where T : Message, new()
         {
             Publisher<T> publisher = new Publisher<T>(topic, this, qos);
             publishers.Add(publisher);
             return publisher;
         }
 
-        public Subscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : IRclcsMessage, new ()
+        public Subscription<T> CreateSubscription<T>(string topic, Action<T> callback, QualityOfServiceProfile qos = null) where T : Message, new()
         {
             if(qos == null)
             {
