@@ -77,9 +77,8 @@ namespace rclcs.Test
             int[] setIntSequence = new int[2];
             setIntSequence[0] = 123;
             setIntSequence[1] = 456;
-            test_msgs.msg.UnboundedSequences msg2 = new test_msgs.msg.UnboundedSequences();
-            msg2.Int32_values = setIntSequence;
-            int[] getIntList = msg2.Int32_values;
+            msg.Int32_values = setIntSequence;
+            int[] getIntList = msg.Int32_values;
             Assert.That(getIntList.Length, Is.EqualTo(2));
             Assert.That(getIntList[0], Is.EqualTo(123));
             Assert.That(getIntList[1], Is.EqualTo(456));
@@ -87,16 +86,24 @@ namespace rclcs.Test
             string[] setStringSequence = new string[2];
             setStringSequence[0] = "Hello";
             setStringSequence[1] = "world";
-            test_msgs.msg.UnboundedSequences msg3 = new test_msgs.msg.UnboundedSequences();
-            msg3.String_values = setStringSequence;
-            string[] getStringSequence = msg3.String_values;
+            msg.String_values = setStringSequence;
+            string[] getStringSequence = msg.String_values;
             Assert.That(getStringSequence.Length, Is.EqualTo(2));
             Assert.That(getStringSequence[0], Is.EqualTo("Hello"));
             Assert.That(getStringSequence[1], Is.EqualTo("world"));
+
+            Byte[] setUint8Sequence = new Byte[2];
+            setUint8Sequence[0] = 1;
+            setUint8Sequence[1] = 2;
+            msg.Uint8_values = setUint8Sequence;
+            Byte[] getUint8Sequence = msg.Uint8_values;
+            Assert.That(getUint8Sequence.Length, Is.EqualTo(2));
+            Assert.That(getUint8Sequence[0], Is.EqualTo(1));
+            Assert.That(getUint8Sequence[1], Is.EqualTo(2));
         }
 
         [Test]
-        public void SetBoundedSequenses()
+        public void SetBoundedSequences()
         {
             test_msgs.msg.BoundedSequences msg = new test_msgs.msg.BoundedSequences();
             bool[] setBoolSequence = new bool[2];
@@ -165,7 +172,6 @@ namespace rclcs.Test
         }
 
         /*
-
         // NOTE(samiam): does not work yet
         [Test]
         public void SetStaticArrayPrimitives()
