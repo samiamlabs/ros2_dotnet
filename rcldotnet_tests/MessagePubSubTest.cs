@@ -147,39 +147,38 @@ namespace rclcs.Test
             subscription.Dispose();
         }
 
+        // [Test]
+        // public void LaserScanPubSub()
+        // {
+        //     bool callbackTriggered = false;
 
-        [Test]
-        public void LaserScanPubSub()
-        {
-            bool callbackTriggered = false;
+        //     var subscription = sub_node.CreateSubscription<sensor_msgs.msg.LaserScan>(
+        //       "test_topic", (received_msg) =>
+        //       {
+        //         callbackTriggered = true;
+        //         // received_msg.ReadNativeMessage();
+        //         // Assert.That(received_msg.Ranges.Length, Is.EqualTo(10));
+        //       });
 
-            var subscription = sub_node.CreateSubscription<sensor_msgs.msg.LaserScan>(
-              "test_topic", (received_msg) =>
-              {
-                callbackTriggered = true;
-                // received_msg.ReadNativeMessage();
-                // Assert.That(received_msg.Ranges.Length, Is.EqualTo(10));
-              });
+        //     var publisher = pub_node.CreatePublisher<sensor_msgs.msg.LaserScan>("test_topic");
+        //     var msg = new sensor_msgs.msg.LaserScan();
+        //     msg.Ranges = new float[10];
+        //     Assert.That(msg.Ranges.Length, Is.EqualTo(10));
 
-            var publisher = pub_node.CreatePublisher<sensor_msgs.msg.LaserScan>("test_topic");
-            var msg = new sensor_msgs.msg.LaserScan();
-            msg.Ranges = new float[10];
-            Assert.That(msg.Ranges.Length, Is.EqualTo(10));
+        //     var copiedMsg = new sensor_msgs.msg.LaserScan();
+        //     copiedMsg.ReadNativeMessage(msg.Handle);
 
-            var copiedMsg = new sensor_msgs.msg.LaserScan();
-            copiedMsg.ReadNativeMessage(msg.Handle);
+        //     Assert.That(copiedMsg.Ranges.Length, Is.EqualTo(10));
 
-            Assert.That(copiedMsg.Ranges.Length, Is.EqualTo(10));
+        //     msg.WriteNativeMessage();
+        //     publisher.Publish(msg);
+        //     Rclcs.SpinOnce(sub_node, sub_context, 0.5);
 
-            msg.WriteNativeMessage();
-            publisher.Publish(msg);
-            Rclcs.SpinOnce(sub_node, sub_context, 0.5);
+        //     Assert.That(callbackTriggered, Is.True);
 
-            Assert.That(callbackTriggered, Is.True);
-
-            publisher.Dispose();
-            subscription.Dispose();
-        }
+        //     publisher.Dispose();
+        //     subscription.Dispose();
+        // }
 
         // [Test]
         // public void MultiArrayDimensionPubSub()
