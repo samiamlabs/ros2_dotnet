@@ -7,7 +7,7 @@ import platform
 import pkg_resources
 import stat
 
-from ament_index_python import get_package_prefix
+from ament_index_python import get_package_prefix, get_package_share_directory
 from ament_index_python.packages import PackageNotFoundError
 
 
@@ -163,8 +163,9 @@ def directory_is_a_unity_project(dir_path):
 
 
 def copy_unity_files(unity_project_path):
-    unity_files_path = pkg_resources.resource_filename('rcldotnet_utils',
-                                                       'unity_files')
+    # unity_files_path = pkg_resources.resource_filename('rcldotnet_utils',
+    #                                                    'unity_files')
+    unity_files_path = get_package_share_directory('rcldotnet_utils') + '/unity_files'
 
     asset_path = unity_project_path + '/Assets'
 
