@@ -46,7 +46,10 @@ class UnityROS2LibCopier:
         ]
 
         self.c_lib_source_dict = {}
-        self.c_lib_destination_dir = unity_project_path + '/Assets/Plugins/x86_64'
+        if platform.system() == 'Windows':
+            self.c_lib_destination_dir = unity_project_path + '/Assets/Plugins/Windows/x86_64'
+        else:
+            self.c_lib_destination_dir = unity_project_path + '/Assets/Plugins/Linux/x86_64'
 
         self.cs_lib_source_dict = {}
         self.cs_lib_destination_dir = unity_project_path + '/Assets/Plugins'
