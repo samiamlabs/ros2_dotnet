@@ -117,10 +117,8 @@ ROSIDL_GENERATOR_C_EXPORT
 {
   @(msg_typename) *ros_message = (@(msg_typename) *)message_handle;
 @[    if isinstance(member.type, Array)]@
-  // *size = @(member.type.size);
   return ros_message->@(member.name);
 @[    elif isinstance(member.type, AbstractSequence)]@
-  // *size = ros_message->@(member.name).size;
   return ros_message->@(member.name).data;
 @[    end if]@
 }
