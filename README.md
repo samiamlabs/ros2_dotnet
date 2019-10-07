@@ -27,7 +27,7 @@ mkdir -p ~/ros2_dotnet_ws/src
 cd ~/ros2_dotnet_ws
 wget https://raw.githubusercontent.com/samiamlabs/ros2_dotnet/master/ros2_dotnet_dashing.repos
 vcs import ~/ros2_dotnet_ws/src < ros2_dotnet_dashing.repos
-colcon build --merge-install
+colcon build
 
 ```
 Running. Source install/setup.bash in both terminals:
