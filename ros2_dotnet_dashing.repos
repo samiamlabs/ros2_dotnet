@@ -1,5 +1,7 @@
 ﻿repositories:
-  # rcldotnet
+
+  # ros2_dotnet
+
   ros2/rosidl_defaults:
     type: git
     url: https://github.com/ros2/rosidl_defaults.git
@@ -8,15 +10,17 @@
     type: git
     url: https://github.com/esteve/ament_cmake_export_assemblies.git
     version: master
-  ros2_dotnet/dotnet_cmake_module:
+  dotnet/dotnet_cmake_module:
     type: git
     url: https://github.com/esteve/dotnet_cmake_module.git
     version: master
-  ros2_dotnet/ros2_dotnet:
+  dotnet/ros2_dotnet:
     type: git
     url: https://github.com/samiamlabs/ros2_dotnet
     version: master
+
   # messages
+
   ros2/common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces.git
@@ -33,3 +37,13 @@
     type: git
     url: https://github.com/ros2/geometry2.git
     version: dashing
+
+  # other dependencies
+
+  ros2/eigen3_cmake_module:
+    type: git
+    url: https://github.com/ros2/eigen3_cmake_module.git 
+    version: master
+
+
+

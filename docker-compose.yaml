@@ -1,0 +1,9 @@
+version: '2'
+services:
+    ros2_dotnet:
+        container_name: ros2-dotnet
+        build: .
+        volumes:
+            - ./:/opt/dotnet_ws/src/dotnet/ros2_dotnet
+        working_dir: /opt/dotnet_ws
+        command: /bin/sh -c "while sleep 1000; do :; done"
