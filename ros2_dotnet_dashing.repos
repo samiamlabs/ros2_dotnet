@@ -21,29 +21,40 @@
 
   # messages
 
-  ros2/common_interfaces:
-    type: git
-    url: https://github.com/ros2/common_interfaces.git
-    version: dashing
-  ros2/unique_identifier_msgs:
-    type: git
-    url: https://github.com/ros2/unique_identifier_msgs.git
-    version: dashing
-  ros2/rcl_interfaces:
-    type: git
-    url: https://github.com/ros2/rcl_interfaces.git
-    version: dashing
-  ros2/geometry2:
-    type: git
-    url: https://github.com/ros2/geometry2.git
-    version: dashing
+  # interfaces/common_interfaces:
+  #   type: git
+  #   url: https://github.com/ros2/common_interfaces.git
+  #   version: dashing
+  # interfaces/unique_identifier_msgs:
+  #   type: git
+  #   url: https://github.com/ros2/unique_identifier_msgs.git
+  #   version: dashing
+  # interfaces/rcl_interfaces:
+  #   type: git
+  #   url: https://github.com/ros2/rcl_interfaces.git
+  #   version: dashing
+  # interfaces/geometry2:
+  #   type: git
+  #   url: https://github.com/ros2/geometry2.git
+  #   version: dashing
 
   # other dependencies
 
-  ros2/eigen3_cmake_module:
-    type: git
-    url: https://github.com/ros2/eigen3_cmake_module.git 
-    version: master
+  # ros2/eigen3_cmake_module:
+  #   type: git
+  #   url: https://github.com/ros2/eigen3_cmake_module.git 
+  #   version: master
+
+  # cyclone/rmw_cyclonedds:
+  #   type: git
+  #   url: https://github.com/ros2/rmw_cyclonedds 
+  #   version: master
+
+  # cyclone/cyclonedds:
+  #   type: git
+  #   url: https://github.com/eclipse-cyclonedds/cyclonedds 
+  #   version: master
+
 
 
 

@@ -5,40 +5,57 @@ repositories:
     type: git
     url: https://github.com/esteve/ament_cmake_export_assemblies.git
     version: master
-  ros2_dotnet/dotnet_cmake_module:
+  dotnet/dotnet_cmake_module:
     type: git
     url: https://github.com/esteve/dotnet_cmake_module.git
     version: master
-  ros2_dotnet/ros2_dotnet:
+  # dotnet/ros2_dotnet:
+  #   type: git
+  #   url: https://github.com/samiamlabs/ros2_dotnet.git
+  #   version: master
+
+  # other dependencies
+  ros2/eigen3_cmake_module:
     type: git
-    url: https://github.com/samiamlabs/ros2_dotnet.git
+    url: https://github.com/ros2/eigen3_cmake_module.git 
+    version: master
+
+  cyclone/rmw_cyclonedds:
+    type: git
+    url: https://github.com/ros2/rmw_cyclonedds 
+    version: master
+
+  cyclone/cyclonedds:
+    type: git
+    url: https://github.com/eclipse-cyclonedds/cyclonedds 
     version: master
 
   # messages
-  messages/common_interfaces:
-    type: git
-    url: https://github.com/ros2/common_interfaces.git
-    version: dashing
-  messages/geometry2:
-    type: git
-    url: https://github.com/ros2/geometry2.git
-    version: dashing
-  messages/unique_identifier_msgs:
-    type: git
-    url: https://github.com/ros2/unique_identifier_msgs.git
-    version: dashing
-  messages/rcl_interfaces:
-    type: git
-    url: https://github.com/ros2/rcl_interfaces.git
-    version: dashing
-  messages/rosidl_defaults:
-    type: git
-    url: https://github.com/ros2/rosidl_defaults.git
-    version: dashing
-  messages/test_interface_files:
+
+  interfaces/test_interface_files:
     type: git
     url: https://github.com/ros2/test_interface_files.git
     version: dashing
+  interfaces/rcl_interfaces:
+    type: git
+    url: https://github.com/ros2/rcl_interfaces.git
+    version: dashing
+  interfaces/unique_identifier_msgs:
+    type: git
+    url: https://github.com/ros2/unique_identifier_msgs.git
+    version: dashing
+  # interfaces/common_interfaces:
+  #   type: git
+  #   url: https://github.com/ros2/common_interfaces.git
+  #   version: dashing
+  # interfaces/geometry2:
+  #   type: git
+  #   url: https://github.com/ros2/geometry2.git
+  #   version: dashing
+  # interfaces/rosidl_defaults:
+  #   type: git
+  #   url: https://github.com/ros2/rosidl_defaults.git
+  #   version: dashing
 
   # minimal ros2
   ament/ament_cmake:
@@ -65,14 +82,14 @@ repositories:
     type: git
     url: https://github.com/ament/uncrustify_vendor.git
     version: dashing
-  eProsima/Fast-CDR:
-    type: git
-    url: https://github.com/eProsima/Fast-CDR.git
-    version: 906c966c426f85d503baca9c2e46bead7b633dff
-  eProsima/Fast-RTPS:
-    type: git
-    url: https://github.com/eProsima/Fast-RTPS.git
-    version: 6a6f79c4256a00fc13834a2aaa3c60a0aaac5e76
+  # eProsima/Fast-CDR:
+  #   type: git
+  #   url: https://github.com/eProsima/Fast-CDR.git
+  #   version: 906c966c426f85d503baca9c2e46bead7b633dff
+  # eProsima/Fast-RTPS:
+  #   type: git
+  #   url: https://github.com/eProsima/Fast-RTPS.git
+  #   version: 6a6f79c4256a00fc13834a2aaa3c60a0aaac5e76
   osrf/osrf_testing_tools_cpp:
     type: git
     url: https://github.com/osrf/osrf_testing_tools_cpp.git
@@ -108,7 +125,7 @@ repositories:
   ros2/eigen3_cmake_module:
     type: git
     url: https://github.com/ros2/eigen3_cmake_module.git
-    version: dashing
+    version: master 
   ros2/message_filters:
     type: git
     url: https://github.com/ros2/message_filters.git
@@ -141,10 +158,6 @@ repositories:
     type: git
     url: https://github.com/ros2/rcl.git
     version: dashing
-  ros2/rcl_interfaces:
-    type: git
-    url: https://github.com/ros2/rcl_interfaces.git
-    version: dashing
   ros2/rclcpp:
     type: git
     url: https://github.com/ros2/rclcpp.git
@@ -173,10 +186,10 @@ repositories:
     type: git
     url: https://github.com/ros2/rmw.git
     version: dashing
-  ros2/rmw_fastrtps:
-    type: git
-    url: https://github.com/ros2/rmw_fastrtps.git
-    version: dashing
+  # ros2/rmw_fastrtps:
+  #   type: git
+  #   url: https://github.com/ros2/rmw_fastrtps.git
+  #   version: dashing
   ros2/rmw_implementation:
     type: git
     url: https://github.com/ros2/rmw_implementation.git
@@ -205,10 +218,10 @@ repositories:
     type: git
     url: https://github.com/ros2/rosidl_typesupport.git
     version: dashing
-  ros2/rosidl_typesupport_fastrtps:
-    type: git
-    url: https://github.com/ros2/rosidl_typesupport_fastrtps.git
-    version: dashing
+  # ros2/rosidl_typesupport_fastrtps:
+  #   type: git
+  #   url: https://github.com/ros2/rosidl_typesupport_fastrtps.git
+  #   version: dashing
   # ros2/sros2:
   #   type: git
   #   url: https://github.com/ros2/sros2.git

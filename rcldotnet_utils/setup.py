@@ -31,7 +31,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'init_unity_project = rcldotnet_utils.init_unity_project:main'
+            'init_unity_project = rcldotnet_utils.init_unity_project:main',
+            'create_unity_plugin = rcldotnet_utils.create_unity_plugin:main'
         ],
     },
 )

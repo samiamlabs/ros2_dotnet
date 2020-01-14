@@ -5,7 +5,6 @@ import yaml
 import argparse
 import platform
 
-from tkinter.filedialog import askopenfilename
 
 import argparse
 
@@ -13,7 +12,7 @@ parser = argparse.ArgumentParser(description='Start Unity Editor with ROS2 suppo
 parser.add_argument('--select-editor', action='store_true', help='select executable for the editor')
 args = parser.parse_args()
 
-config_filename = 'ros_config.yaml'
+config_filename = 'editor_config.yaml'
 
 # Defaults
 if platform.system() == 'Windows':
@@ -46,6 +45,8 @@ if yaml_data['unity_editor_filename'] == None or args.select_editor:
         default_editor_folder = "~/Unity/Hub/Editor"
         editor_filetype = "Unity"
 
+    print('Unity Editor not seleced, opening tkinter dialog...')
+    from tkinter.filedialog import askopenfilename
     filename =  askopenfilename(initialdir = default_editor_folder,
                                 title = "choose unity editor",
                                 filetypes = (("Editor", editor_filetype),("all files","*.*")))
@@ -61,6 +62,8 @@ unity_editor_filename = yaml_data['unity_editor_filename']
 asset_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 project_directory = os.path.abspath(os.path.join(asset_directory, os.pardir))
+
+os.environ['RMW_IMPLEMENTATION'] = 'rmw_cyclonedds_cpp'
 
 if platform.system() == 'Windows':
     library_path = project_directory + '\\Assets\\' + yaml_data['c_libs_asset_path']
