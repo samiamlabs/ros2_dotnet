@@ -13,21 +13,16 @@ from ament_index_python.packages import PackageNotFoundError
 
 
 class UnityROS2LibCopier:
-    def __init__(self, unity_project_path):
+    def __init__(self, unity_project_path, fastrtps_support=False):
         self.ament_dependencies = [
             'rcl',
             'rcl_interfaces',
             'rmw',
             'rmw_implementation',
-            # 'rmw_fastrtps_cpp',
-            # 'rmw_fastrtps_dynamic_cpp',
-            # 'rmw_fastrtps_shared_cpp',
             'rmw_cyclonedds_cpp',
             'rosidl_generator_c',
             'rosidl_typesupport_c',
             'rosidl_typesupport_cpp',
-            # 'rosidl_typesupport_fastrtps_c',
-            # 'rosidl_typesupport_fastrtps_cpp',
             'rcl_logging_noop',
             'builtin_interfaces',
             'rcutils',
@@ -44,12 +39,25 @@ class UnityROS2LibCopier:
             'rosidl_typesupport_introspection_cpp',
         ]
 
+
         self.dependencies = [
             'poco_vendor',
-            'cyclonedds',
-            # 'fastcdr',
-            # 'fastrtps',
+            'cyclonedds'
         ]
+
+        if fastrtps_support:
+            self.ament_dependencies.extend([
+                'rmw_fastrtps_cpp',
+                'rmw_fastrtps_dynamic_cpp',
+                'rmw_fastrtps_shared_cpp',
+                'rosidl_typesupport_fastrtps_c',
+                'rosidl_typesupport_fastrtps_cpp',
+            ])
+            self.dependencies.extend([
+                'fastcdr',
+                'fastrtps'
+            ])
+            
 
         self.system_dependencies = [
             '/usr/lib/libPocoFoundation.so',
@@ -173,6 +181,10 @@ def parse_args(args):
         '--unity-project', default=os.getcwd(), help='path to Unity project'
     )
 
+    parser.add_argument(
+        '--fastrtps-support', action='store_true', default=False, help='add support for fastrtps (ros2 deps need to be intsalled on local system)'
+    )
+
     return parser.parse_args(args)
 
 
@@ -264,7 +276,7 @@ def main():
 
     parsed = parse_args(sys.argv[1:])
 
-    lib_copier = UnityROS2LibCopier(parsed.unity_project)
+    lib_copier = UnityROS2LibCopier(parsed.unity_project, parsed.fastrtps_support)
     lib_copier.copy_files()
 
     copy_unity_files(parsed.unity_project)
