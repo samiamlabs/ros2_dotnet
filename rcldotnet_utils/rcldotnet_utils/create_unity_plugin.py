@@ -13,7 +13,7 @@ from ament_index_python.packages import PackageNotFoundError
 
 
 class UnityROS2LibCopier:
-    def __init__(self, unity_project_path, fastrtps_support=False):
+    def __init__(self, output_path):
         self.ament_dependencies = [
             'rcl',
             'rcl_interfaces',
@@ -24,57 +24,38 @@ class UnityROS2LibCopier:
             'rosidl_typesupport_c',
             'rosidl_typesupport_cpp',
             'rcl_logging_noop',
+            'rosidl_typesupport_introspection_c',
+            'rosidl_typesupport_introspection_cpp',
             'builtin_interfaces',
             'rcutils',
             'rcldotnet',
             'std_msgs',
             'geometry_msgs',
             'sensor_msgs',
-            'tf2_msgs',
             'nav_msgs',
             'test_msgs',
             'action_msgs',
             'unique_identifier_msgs',
-            'rosidl_typesupport_introspection_c',
-            'rosidl_typesupport_introspection_cpp',
+            'can_msgs',
+            'canopen_msgs',
+            'swarm_msgs',
+            'tf2_msgs',
         ]
-
 
         self.dependencies = [
-            'poco_vendor',
             'cyclonedds'
-        ]
-
-        if fastrtps_support:
-            self.ament_dependencies.extend([
-                'rmw_fastrtps_cpp',
-                'rmw_fastrtps_dynamic_cpp',
-                'rmw_fastrtps_shared_cpp',
-                'rosidl_typesupport_fastrtps_c',
-                'rosidl_typesupport_fastrtps_cpp',
-            ])
-            self.dependencies.extend([
-                'fastcdr',
-                'fastrtps'
-            ])
-            
-
-        self.system_dependencies = [
-            '/usr/lib/libPocoFoundation.so',
-            '/usr/lib/libPocoFoundation.so.50',
         ]
 
         self.c_lib_source_dict = {}
         if platform.system() == 'Windows':
-            self.c_lib_destination_dir = unity_project_path + '/Assets/Plugins/Windows/x86_64'
+            self.c_lib_destination_dir = output_path + '/Plugins/Windows/x86_64'
         else:
-            self.c_lib_destination_dir = unity_project_path + '/Assets/Plugins/Linux/x86_64'
+            self.c_lib_destination_dir = output_path + '/Plugins/Linux/x86_64'
 
         self.cs_lib_source_dict = {}
-        self.cs_lib_destination_dir = unity_project_path + '/Assets/Plugins'
+        self.cs_lib_destination_dir = output_path + '/Plugins'
 
         self.__find_libs()
-        self.__add_system_libs()
 
     def copy_files(self):
         self.__copy_files_from_dict(self.c_lib_source_dict,
@@ -86,10 +67,6 @@ class UnityROS2LibCopier:
     def __find_libs(self):
         self.__find_c_libs()
         self.__find_csharp_libs()
-
-    def __add_system_libs(self):
-        for system_dependency in self.system_dependencies:
-            self.c_lib_source_dict[ntpath.basename(system_dependency)] = system_dependency
 
     def __find_c_libs(self):
         for package_name in self.ament_dependencies:
@@ -103,7 +80,7 @@ class UnityROS2LibCopier:
                     lib_folder = '\\bin'
                     package_lib_path = package_install_path + lib_folder
                 else:
-                    filename_extensions = ('.so', '.so.0', '.so.0.5.0', '.so.1', 'so.2')
+                    filename_extensions = ('.so')
                     lib_folder = '/lib'
                     package_lib_path = package_install_path + lib_folder
 
@@ -160,7 +137,6 @@ class UnityROS2LibCopier:
                 logging.info('Copying "{}"'.format(filename))
                 shutil.copy2(source_path, destination_path)
 
-
 def should_copy_file(source_path, destination_path):
 
     def does_not_exist(destination_path):
@@ -173,113 +149,22 @@ def should_copy_file(source_path, destination_path):
     return (does_not_exist(destination_path)
             or newer_verson_available(source_path, destination_path))
 
-
 def parse_args(args):
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '--unity-project', default=os.getcwd(), help='path to Unity project'
-    )
-
-    parser.add_argument(
-        '--fastrtps-support', action='store_true', default=False, help='add support for fastrtps (ros2 deps need to be intsalled on local system)'
+        '--path', default=os.getcwd(), help='path to where plugin should be copied'
     )
 
     return parser.parse_args(args)
-
-
-def directory_is_a_unity_project(dir_path):
-    unity_project_settings = dir_path + '/ProjectSettings/ProjectSettings.asset'
-    return os.path.isfile(unity_project_settings)
-
-
-def copy_unity_files(unity_project_path):
-    # unity_files_path = pkg_resources.resource_filename('rcldotnet_utils',
-    #                                                    'unity_files')
-    unity_files_path = get_package_share_directory('rcldotnet_utils') + '/unity_files'
-
-    asset_path = unity_project_path + '/Assets'
-
-    unity_resource_path = asset_path + '/Resources'
-    if not os.path.isdir(unity_resource_path):
-        try:
-            os.makedirs(unity_resource_path)
-        except OSError:
-            logging.error('Failed to create directory {}'.format(
-                unity_resource_path))
-        else:
-            logging.info('Successfully created the directory {}'.format(
-                unity_resource_path))
-
-    unity_editor_scripts_path = asset_path + '/Editor/ROS'
-    if not os.path.isdir(unity_editor_scripts_path):
-        try:
-            os.makedirs(unity_editor_scripts_path)
-        except OSError:
-            logging.error('Failed to create directory {}'.format(
-                unity_editor_scripts_path))
-        else:
-            logging.info('Successfully created the directory {}'.format(
-                unity_editor_scripts_path))
-
-    source_path = unity_files_path + '/start_editor.py'
-    destination_path = asset_path + '/start_editor.py'
-    if should_copy_file(source_path, destination_path):
-        logging.info('Copying start_editor.py')
-        shutil.copy2(source_path, destination_path)
-
-    if platform.system() == 'Windows':
-        source_path = unity_files_path + '/start_editor.bat'
-        destination_path = asset_path + '/start_editor.bat'
-    else:
-        source_path = unity_files_path + '/start_editor.bash'
-        destination_path = asset_path + '/start_editor.bash'
-    if should_copy_file(source_path, destination_path):
-        logging.info('Copying start_editor script')
-        shutil.copy2(source_path, destination_path)
-
-    if platform.system() == 'Linux':
-        logging.info('Making editor script executable')
-        st = os.stat(destination_path)
-        os.chmod(destination_path, st.st_mode | stat.S_IEXEC)
-
-    source_path = unity_files_path + '/start_player.py'
-    destination_path = unity_resource_path + '/start_player.py'
-    if should_copy_file(source_path, destination_path):
-        logging.info('Copying start_player.py')
-        shutil.copy2(source_path, destination_path)
-
-    if platform.system() == 'Windows':
-        source_path = unity_files_path + '/start_player.bat'
-        destination_path = unity_resource_path + '/start_player.bat'
-    else:
-        source_path = unity_files_path + '/start_player.bash'
-        destination_path = unity_resource_path + '/start_player.bash'
-    if should_copy_file(source_path, destination_path):
-        logging.info('Copying start_player script')
-        shutil.copy2(source_path, destination_path)
-
-    if platform.system() == 'Linux':
-        logging.info('Making player script executable')
-        st = os.stat(destination_path)
-        os.chmod(destination_path, st.st_mode | stat.S_IEXEC)
-
-    source_path = unity_files_path + '/BuildRos.cs'
-    destination_path = unity_editor_scripts_path + '/BuildRos.cs'
-    if should_copy_file(source_path, destination_path):
-        logging.info('Copying BuildRos.cs')
-        shutil.copy2(source_path, destination_path)
-
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
     parsed = parse_args(sys.argv[1:])
 
-    lib_copier = UnityROS2LibCopier(parsed.unity_project, parsed.fastrtps_support)
+    lib_copier = UnityROS2LibCopier(parsed.path)
     lib_copier.copy_files()
-
-    copy_unity_files(parsed.unity_project)
 
 
 if __name__ == '__main__':

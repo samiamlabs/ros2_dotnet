@@ -280,3 +280,6 @@ ModelManifest.xml
 *.su
 
 *.pyc
+
+# Generated Unity Plugin
+Plugins
