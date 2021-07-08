@@ -49,7 +49,7 @@ RUN bash -c ". /opt/ros2_ws/install/local_setup.bash; colcon build"
 
 COPY rcldotnet_utils src/dotnet/ros2_dotnet/rcldotnet_utils
 
-RUN bash -c ". /opt/ros2_ws/install/local_setup.bash; colcon build"
+RUN bash -c ". /opt/ros2_ws/install/local_setup.bash; colcon build --packages-select rcldotnet_utils"
 
 RUN echo "source /opt/ros2_ws/install/local_setup.bash" >> $HOME/.bashrc
 RUN echo "source /opt/dotnet_ws/install/local_setup.bash" >> $HOME/.bashrc

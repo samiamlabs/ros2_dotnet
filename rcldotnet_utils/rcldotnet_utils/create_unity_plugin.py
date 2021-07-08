@@ -22,10 +22,10 @@ class UnityROS2LibCopier:
             'rmw_cyclonedds_cpp',
             'rosidl_generator_c',
             'rosidl_typesupport_c',
-            # 'rosidl_typesupport_cpp',
+            'rosidl_typesupport_cpp',
             'rcl_logging_noop',
-            # 'rosidl_typesupport_introspection_c',
-            # 'rosidl_typesupport_introspection_cpp',
+            'rosidl_typesupport_introspection_c',
+            'rosidl_typesupport_introspection_cpp',
             'builtin_interfaces',
             'rcutils',
             'rcldotnet',
@@ -48,7 +48,7 @@ class UnityROS2LibCopier:
 
         self.system_dependencies = [
             '/usr/lib/libPocoFoundation.so',
-            '/usr/lib/libPocoFoundation.so.50',
+            # '/usr/lib/libPocoFoundation.so.50',
         ]
 
         self.c_lib_source_dict = {}
@@ -61,7 +61,7 @@ class UnityROS2LibCopier:
         self.cs_lib_destination_dir = output_path + '/Plugins'
 
         self.__find_libs()
-        # self.__add_system_libs()
+        self.__add_system_libs()
 
 
     def copy_files(self):
