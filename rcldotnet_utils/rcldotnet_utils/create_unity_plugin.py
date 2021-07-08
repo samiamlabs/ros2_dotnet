@@ -22,10 +22,10 @@ class UnityROS2LibCopier:
             'rmw_cyclonedds_cpp',
             'rosidl_generator_c',
             'rosidl_typesupport_c',
-            'rosidl_typesupport_cpp',
+            # 'rosidl_typesupport_cpp',
             'rcl_logging_noop',
-            'rosidl_typesupport_introspection_c',
-            'rosidl_typesupport_introspection_cpp',
+            # 'rosidl_typesupport_introspection_c',
+            # 'rosidl_typesupport_introspection_cpp',
             'builtin_interfaces',
             'rcutils',
             'rcldotnet',
@@ -46,6 +46,11 @@ class UnityROS2LibCopier:
             'cyclonedds'
         ]
 
+        self.system_dependencies = [
+            '/usr/lib/libPocoFoundation.so',
+            '/usr/lib/libPocoFoundation.so.50',
+        ]
+
         self.c_lib_source_dict = {}
         if platform.system() == 'Windows':
             self.c_lib_destination_dir = output_path + '/Plugins/Windows/x86_64'
@@ -56,6 +61,8 @@ class UnityROS2LibCopier:
         self.cs_lib_destination_dir = output_path + '/Plugins'
 
         self.__find_libs()
+        # self.__add_system_libs()
+
 
     def copy_files(self):
         self.__copy_files_from_dict(self.c_lib_source_dict,
@@ -67,6 +74,10 @@ class UnityROS2LibCopier:
     def __find_libs(self):
         self.__find_c_libs()
         self.__find_csharp_libs()
+
+    def __add_system_libs(self):
+        for system_dependency in self.system_dependencies:
+            self.c_lib_source_dict[ntpath.basename(system_dependency)] = system_dependency
 
     def __find_c_libs(self):
         for package_name in self.ament_dependencies:

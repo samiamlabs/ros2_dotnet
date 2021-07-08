@@ -13,6 +13,7 @@ RUN add-apt-repository universe
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
   dotnet-sdk-2.2 \
+  patchelf \
   && rm -rf /var/likb/apt/lists/*
 
 # build 
@@ -26,7 +27,11 @@ RUN vcs import src < ros2_dotnet_dashing.repos
 
 RUN rm -r src/dotnet/ros2_dotnet
 
-COPY . src/dotnet/ros2_dotnet
+COPY rcldotnet src/dotnet/ros2_dotnet/rcldotnet
+COPY rcldotnet_common src/dotnet/ros2_dotnet/rcldotnet_common
+COPY rcldotnet_examples src/dotnet/ros2_dotnet/rcldotnet_examples
+COPY rcldotnet_tests src/dotnet/ros2_dotnet/rcldotnet_tests
+COPY rosidl_generator_cs src/dotnet/ros2_dotnet/rosidl_generator_cs
 
 WORKDIR /opt/dotnet_ws
 
@@ -42,8 +47,14 @@ WORKDIR /opt/dotnet_ws
 
 RUN bash -c ". /opt/ros2_ws/install/local_setup.bash; colcon build"
 
+COPY rcldotnet_utils src/dotnet/ros2_dotnet/rcldotnet_utils
+
+RUN bash -c ". /opt/ros2_ws/install/local_setup.bash; colcon build"
+
 RUN echo "source /opt/ros2_ws/install/local_setup.bash" >> $HOME/.bashrc
 RUN echo "source /opt/dotnet_ws/install/local_setup.bash" >> $HOME/.bashrc
+
+COPY set_rpath_to_origin.bash /set_rpath_to_origin.bash
 
 # source overlay workspace from entrypoint if available
 COPY ros_entrypoint.sh /
